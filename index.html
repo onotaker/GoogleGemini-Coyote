@@ -11,28 +11,28 @@
             height: 100%; /* Ensure html and body take full viewport height */
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Prevent body scroll by default, will be auto for PC */
+            overflow: hidden; /* Prevent body scroll by default on mobile */
         }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F0F4F8; /* Light Gray Background */
+            background-color: #F0F4F8; /* Light Gray Background - consistent with infographic */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 0.5rem; /* Small padding around the main layout */
+            padding: 0.125rem; /* Further reduced padding around the main layout for mobile */
             box-sizing: border-box;
         }
-        .game-container {
-            background-color: #FFFFFF; /* White card background */
+        .game-container, .log-container { /* Unified card styling */
+            background-color: #FFFFFF; /* White card background - consistent with infographic */
             border-radius: 0.75rem; /* rounded-xl */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
-            padding: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md - consistent with infographic */
+            padding: 0.25rem; /* Reduced padding for compact view */
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1rem;
+            gap: 0.25rem; /* Reduced gap for compact view */
             width: 100%; /* Ensure it takes full width of its parent */
         }
         .palette-red { color: #FF6B6B; }
@@ -48,31 +48,30 @@
         .bg-palette-dark-blue { background-color: #073B4C; }
 
         .btn {
-            padding: 0.5rem 0.8rem; /* Mobile-first button padding */
-            font-size: 0.85rem; /* Mobile-first button font size */
-            border-radius: 0.5rem;
+            padding: 0.15rem 0.25rem; /* Further reduced button padding */
+            font-size: 0.5rem; /* Further reduced button font size */
+            border-radius: 0.25rem; /* Reduced border-radius */
             font-weight: 600;
             transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            /* width is handled by specific classes or media queries */
+            box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.05), 0 0.5px 1px -0.5px rgba(0, 0, 0, 0.03); /* Further reduced shadow */
         }
         .btn-primary {
-            background-color: #118AB2; /* Strong Blue */
+            background-color: #118AB2; /* Strong Blue - consistent with infographic */
             color: white;
         }
         .btn-primary:hover {
             background-color: #0d6e8b;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15), 0 3px 5px -1px rgba(0, 0, 0, 0.08);
+            transform: translateY(-0.5px); /* Further reduced transform */
+            box-shadow: 0 1.5px 2px -0.5px rgba(0, 0, 0, 0.075), 0 0.75px 1.25px -0.25px rgba(0, 0, 0, 0.04); /* Further reduced shadow */
         }
         .btn-danger {
-            background-color: #FF6B6B; /* Vibrant Red */
+            background-color: #FF6B6B; /* Vibrant Red - consistent with infographic */
             color: white;
         }
         .btn-danger:hover {
             background-color: #e65a5a;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15), 0 3px 5px -1px rgba(0, 0, 0, 0.08);
+            transform: translateY(-0.5px); /* Further reduced transform */
+            box-shadow: 0 1.5px 2px -0.5px rgba(0, 0, 0, 0.075), 0 0.75px 1.25px -0.25px rgba(0, 0, 0, 0.04); /* Further reduced shadow */
         }
         .btn:disabled {
             opacity: 0.6;
@@ -81,24 +80,24 @@
             transform: none;
         }
         .player-card {
-            width: 60px; /* Mobile-first card width */
-            height: 85px; /* Mobile-first card height */
-            background-color: #073B4C; /* Dark Blue for back */
-            border-radius: 0.5rem;
+            width: 20px; /* Further reduced width for mobile */
+            height: 28px; /* Further reduced height for mobile */
+            background-color: #073B4C; /* Dark Blue for back - consistent with infographic */
+            border-radius: 0.15rem; /* Further reduced border-radius */
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.6rem; /* Mobile-first card font size */
+            font-size: 0.6rem; /* Further reduced font size */
             font-weight: bold;
             color: white;
-            border: 3px solid #118AB2;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #118AB2; /* Further reduced border */
+            box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.05), 0 0.5px 1px -0.5px rgba(0, 0, 0, 0.03); /* Further reduced shadow */
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .player-card.revealed {
-            background-color: #FFD166; /* Yellow for revealed */
+            background-color: #FFD166; /* Yellow for revealed - consistent with infographic */
             color: #073B4C;
-            border-color: #FF6B6B;
+            border-color: #FF6B6B; /* Red border for revealed */
         }
         .player-card .card-value { /* Target the span specifically */
             white-space: nowrap; /* Prevent numbers from wrapping vertically */
@@ -107,40 +106,41 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
+            gap: 0.1rem; /* Further reduced gap for mobile player area */
+            padding: 0.1rem; /* Further reduced padding for mobile player area */
+            border-radius: 0.15rem; /* Further reduced border-radius */
             transition: background-color 0.3s ease;
         }
         .player-area.active {
             background-color: #E0F7FA; /* Light blue tint for active player */
-            border: 2px solid #118AB2;
+            border: 0.5px solid #118AB2; /* Further reduced border */
         }
         .message-box {
-            background-color: #FFFBEB; /* Light yellow */
-            border: 1px solid #FFD166;
+            background-color: #FFFBEB; /* Light yellow - consistent with infographic */
+            border: 0.25px solid #FFD166; /* Further reduced border */
             color: #78350F; /* Dark brown */
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.5rem;
-            margin-top: 0.5rem; /* Reduced margin */
+            padding: 0.2rem 0.4rem; /* Further reduced padding */
+            border-radius: 0.15rem; /* Further reduced border-radius */
+            margin-top: 0.15rem; /* Further reduced margin */
             width: 100%;
             text-align: center;
             font-weight: 500;
+            font-size: 0.6rem; /* Further reduced font size */
         }
         .hidden-card-back {
             background-color: #073B4C; /* Dark Blue */
-            border: 3px solid #118AB2;
+            border: 1px solid #118AB2; /* Further reduced border */
         }
         .card-deck-item {
-            width: 30px; /* Mobile-first card deck item width */
-            height: 45px; /* Mobile-first card deck item height */
+            width: 10px; /* Further reduced card deck item width */
+            height: 15px; /* Further reduced card deck item height */
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 0.3rem;
-            font-size: 0.9rem; /* Mobile-first card deck item font size */
+            border-radius: 0.1rem; /* Further reduced border-radius */
+            font-size: 0.3rem; /* Further reduced font size */
             font-weight: bold;
-            border: 1px solid;
+            border: 0.25px solid; /* Further reduced border */
             transition: all 0.3s ease;
             white-space: nowrap; /* Prevent numbers from wrapping vertically */
         }
@@ -164,12 +164,12 @@
         #mainLayout {
             display: flex;
             flex-direction: column; /* Default: Stack vertically on mobile */
-            gap: 0.5rem; /* Smaller gap for mobile */
+            gap: 0.125rem; /* Further reduced gap for mobile */
             width: 100%;
             height: 100%; /* Take full height of parent (body) */
-            max-width: 390px; /* Constrain max width to iPhone 14 width */
+            max-width: 195px; /* Constrain max width to iPhone 14 width / 2 */
             margin: 0 auto; /* Center on all screens */
-            padding: 0.25rem; /* Smallest padding for the main layout */
+            padding: 0.0625rem; /* Further reduced padding for the main layout */
             box-sizing: border-box;
         }
 
@@ -177,53 +177,72 @@
             height: 25vh; /* 25% of viewport height on mobile */
             max-height: 25vh;
             width: 100%; /* Full width on mobile */
-            padding: 0.5rem;
+            padding: 0.125rem; /* Further reduced padding */
             overflow-y: auto;
-            background-color: #FFFFFF;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             flex-shrink: 0; /* Prevent shrinking */
         }
+        #logDisplay h2 {
+            font-size: 0.7rem; /* Further reduced h2 font size */
+            color: #073B4C; /* Dark Blue - consistent with infographic */
+        }
+        #logContent {
+            font-size: 0.5rem; /* Further reduced log content font size */
+            color: #4A5568; /* Text muted - consistent with infographic */
+        }
+
 
         #gameContainer {
             height: 75vh; /* 75% of viewport height on mobile */
             max-height: 75vh;
             flex-grow: 1; /* Take remaining space */
-            padding: 0.5rem;
-            gap: 0.5rem;
+            padding: 0.125rem; /* Further reduced padding */
+            gap: 0.125rem; /* Further reduced gap */
             overflow-y: auto; /* Allow scrolling if content overflows */
-            background-color: #FFFFFF;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        }
+        #gameContainer h1 {
+            font-size: 1.2rem; /* Further reduced h1 font size */
+            color: #073B4C; /* Dark Blue - consistent with infographic */
+        }
+        #roundDisplay {
+            font-size: 0.7rem; /* Further reduced round display font size */
+            color: #118AB2; /* Strong Blue - consistent with infographic */
+        }
+        #gameContainer h2 {
+            font-size: 0.7rem; /* Further reduced h2 font size */
+            color: #073B4C; /* Dark Blue - consistent with infographic */
         }
 
         #bidInput {
-            font-size: 1.1rem; /* Mobile-first input font size */
-            padding: 0.4rem; /* Mobile-first input padding */
-            width: 100px; /* Fixed width to prevent wrapping for "10" on mobile */
-            max-width: 100px; /* Ensure it doesn't grow beyond fixed width */
+            font-size: 0.7rem; /* Further reduced input font size */
+            padding: 0.15rem; /* Further reduced input padding */
+            width: 40px; /* Further reduced fixed width */
+            max-width: 40px; /* Ensure it doesn't grow beyond fixed width */
             margin-bottom: 0; /* No margin bottom by default */
             box-sizing: border-box;
+            border: 0.5px solid #CBD5E0; /* Gray-300 - consistent with infographic */
+            border-radius: 0.25rem; /* Reduced border-radius */
+        }
+        #bidInput:focus {
+            outline: none;
+            border-color: #118AB2; /* Palette Blue */
+            box-shadow: 0 0 0 1.5px rgba(17, 138, 178, 0.2); /* Reduced focus ring */
         }
 
         #gameControls {
             flex-wrap: wrap; /* Allow wrapping on mobile */
             justify-content: center;
-            gap: 0.4rem; /* Smaller gap for controls on mobile */
+            gap: 0.1rem; /* Further reduced gap for controls on mobile */
             width: 100%;
         }
         #gameControls button {
-            width: calc(50% - 0.2rem); /* Each button takes roughly half width on mobile */
+            width: calc(50% - 0.05rem); /* Each button takes roughly half width on mobile */
         }
         #startGameBtn {
             width: 100%; /* Full width for start button on mobile */
         }
         #playersArea {
-            grid-template-columns: repeat(1, minmax(0, 1fr)); /* Always 1 column for players on mobile */
-            gap: 0.4rem; /* Smaller gap for player grid on mobile */
+            grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns for players on mobile */
+            gap: 0.1rem; /* Further reduced gap for player grid on mobile */
         }
 
 
@@ -232,6 +251,9 @@
             html, body {
                 overflow: auto; /* Allow body scroll on desktop */
             }
+            body {
+                padding: 0.5rem; /* Standard padding for desktop */
+            }
             #mainLayout {
                 flex-direction: row; /* On larger screens, arrange side-by-side */
                 max-width: 900px; /* Wider max width for desktop */
@@ -239,39 +261,90 @@
                 padding: 1rem;
                 gap: 1rem;
             }
+            .game-container, .log-container {
+                padding: 1rem;
+                gap: 1rem;
+                border-radius: 0.75rem; /* Standard border-radius */
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Standard shadow */
+            }
             #logDisplay {
                 width: 33.333%; /* Take 1/3 width on desktop */
                 height: 100%; /* Fill parent height */
                 max-height: none; /* Remove max height constraint */
-                padding: 1rem;
+            }
+            #logDisplay h2 {
+                font-size: 1.25rem; /* Standard h2 font size for desktop */
+            }
+            #logContent {
+                font-size: 0.875rem; /* Standard log content font size for desktop */
             }
             #gameContainer {
                 flex-grow: 1; /* Take remaining space */
                 height: 100%; /* Fill parent height */
                 max-height: none; /* Remove max height constraint */
-                padding: 1rem;
-                gap: 1rem;
+            }
+            #gameContainer h1 {
+                font-size: 3rem; /* Standard h1 font size for desktop */
+            }
+            #roundDisplay {
+                font-size: 1.25rem; /* Standard round display font size for desktop */
+            }
+            #gameContainer h2 {
+                font-size: 1.25rem; /* Standard h2 font size for desktop */
             }
             .btn {
                 padding: 0.75rem 1.5rem; /* Larger button padding for desktop */
                 font-size: 1rem; /* Larger button font for desktop */
                 width: 150px; /* Fixed width for buttons on desktop */
+                border-radius: 0.5rem; /* Standard border-radius */
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Standard shadow */
+            }
+            .btn-primary:hover {
+                transform: translateY(-2px); /* Standard transform */
+                box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15), 0 3px 5px -1px rgba(0, 0, 0, 0.08); /* Standard shadow */
+            }
+            .btn-danger:hover {
+                transform: translateY(-2px); /* Standard transform */
+                box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15), 0 3px 5px -1px rgba(0, 0, 0, 0.08); /* Standard shadow */
             }
             .player-card {
                 width: 80px; /* Larger size for desktop */
                 height: 120px;
                 font-size: 2.5rem;
+                border-radius: 0.5rem; /* Standard border-radius */
+                border: 3px solid #118AB2; /* Standard border */
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Standard shadow */
+            }
+            .player-area.active {
+                border: 2px solid #118AB2; /* Standard border */
+            }
+            .message-box {
+                padding: 0.75rem 1.25rem; /* Standard padding */
+                font-size: 1rem; /* Standard font size */
+                border: 1px solid #FFD166; /* Standard border */
+                border-radius: 0.5rem; /* Standard border-radius */
+                margin-top: 0.5rem; /* Standard margin */
+            }
+            .hidden-card-back {
+                border: 3px solid #118AB2; /* Standard border */
+            }
+            .card-deck-item {
+                width: 40px; /* Larger card config items for desktop */
+                height: 60px;
+                font-size: 1.2rem;
+                border-radius: 0.3rem; /* Standard border-radius */
+                border: 1px solid; /* Standard border */
             }
             #bidInput {
                 font-size: 1.5rem; /* Larger font for desktop input */
                 padding: 0.75rem;
                 width: 160px; /* Wider input for desktop */
                 max-width: 160px;
+                border: 1px solid #CBD5E0; /* Standard border */
+                border-radius: 0.5rem; /* Standard border-radius */
             }
-            .card-deck-item {
-                width: 40px; /* Larger card config items for desktop */
-                height: 60px;
-                font-size: 1.2rem;
+            #bidInput:focus {
+                box-shadow: 0 0 0 3px rgba(17, 138, 178, 0.2); /* Standard focus ring */
             }
             #playersArea {
                 grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns for players on desktop */
@@ -292,14 +365,14 @@
 </head>
 <body>
     <div id="mainLayout" class="flex flex-col gap-4 w-full h-full items-start">
-        <div id="logDisplay" class="w-full bg-white rounded-xl shadow-xl p-4 overflow-y-auto">
-            <h2 class="text-xl font-bold text-palette-dark-blue mb-2">ゲームログ</h2>
-            <div id="logContent" class="text-sm text-gray-700 space-y-1">
+        <div id="logDisplay" class="log-container w-full overflow-y-auto">
+            <h2 class="text-xl font-bold mb-2">ゲームログ</h2>
+            <div id="logContent" class="text-sm space-y-1">
                 </div>
         </div>
-        <div id="gameContainer" class="game-container flex-grow bg-white rounded-xl shadow-xl p-4">
-            <h1 class="text-3xl font-bold text-palette-dark-blue mb-2">コヨーテゲーム</h1>
-            <div id="roundDisplay" class="text-xl font-semibold text-palette-blue mb-2">
+        <div id="gameContainer" class="game-container flex-grow">
+            <h1 class="text-3xl font-bold mb-2">コヨーテゲーム</h1>
+            <div id="roundDisplay" class="text-xl font-semibold mb-2">
                 ラウンド: <span id="currentRoundNumber">0</span>
             </div>
 
@@ -317,7 +390,7 @@
             <button id="startGameBtn" class="btn btn-primary mt-4">ゲーム開始</button>
 
             <div class="mt-6 w-full text-center">
-                <h2 class="text-xl font-semibold text-palette-dark-blue mb-2">カード構成</h2>
+                <h2 class="text-xl font-semibold mb-2">カード構成</h2>
                 <div id="availableCardsArea" class="flex flex-wrap justify-center gap-1">
                 </div>
             </div>
