@@ -34,7 +34,6 @@
             align-items: center;
             gap: 0.25rem; /* Adjusted gap for compact view */
             height: 100%; /* Fill parent height in horizontal layout */
-            overflow: hidden; /* No scrollbar on game container/log */
         }
         .palette-red { color: #FF6B6B; }
         .palette-yellow { color: #FFD166; }
@@ -81,14 +80,14 @@
             transform: none;
         }
         .player-card {
-            width: 60px; /* Adjusted width for mobile to fit 3 in a row on 80% of 390px */
-            height: 80px; /* Adjusted height for mobile */
+            width: calc((100% - 0.2rem) / 3); /* Adjusted width for 3 cards + 2 gaps */
+            height: 65px; /* Further reduced height */
             background-color: #073B4C; /* Dark Blue for back - consistent with infographic */
             border-radius: 0.25rem; /* Adjusted border-radius */
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.2rem; /* Adjusted font size */
+            font-size: 1rem; /* Adjusted font size */
             font-weight: bold;
             color: white;
             border: 1.5px solid #118AB2; /* Adjusted border */
@@ -117,42 +116,43 @@
             border: 0.5px solid #118AB2; /* Further reduced border */
         }
         .player-area h3 { /* Player name font size adjustment */
-            font-size: 0.6rem; /* Adjusted font size for player names */
+            font-size: 0.5rem; /* Adjusted font size for player names */
             font-weight: 600;
             color: #073B4C;
             margin-bottom: 0; /* Remove default margin */
             line-height: 1; /* Compact line height */
         }
         .player-area p { /* Life text font size */
-            font-size: 0.6rem; /* Adjusted font size for life text */
+            font-size: 0.5rem; /* Adjusted font size for life text */
             line-height: 1; /* Compact line height */
         }
         .message-box {
             background-color: #FFFBEB; /* Light yellow - consistent with infographic */
             border: 0.25px solid #FFD166; /* Further reduced border */
             color: #78350F; /* Dark brown */
-            padding: 0.2rem 0.4rem; /* Further reduced padding */
+            padding: 0.15rem 0.3rem; /* Further reduced padding */
             border-radius: 0.15rem; /* Adjusted border-radius */
-            margin-top: 0.15rem; /* Further reduced margin */
+            margin-top: 0.1rem; /* Further reduced margin */
+            margin-bottom: 0.1rem;
             width: 100%;
             text-align: center;
             font-weight: 500;
-            font-size: 0.6rem; /* Further reduced font size */
+            font-size: 0.5rem; /* Further reduced font size */
         }
         .hidden-card-back {
             background-color: #073B4C; /* Dark Blue */
             border: 1.5px solid #118AB2; /* Adjusted border */
         }
         .card-deck-item {
-            width: 15px; /* Further reduced card deck item width */
-            height: 20px; /* Further reduced card deck item height */
+            width: 12px; /* Further reduced card deck item width */
+            height: 16px; /* Further reduced card deck item height */
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 0.1rem; /* Further reduced border-radius */
-            font-size: 0.4rem; /* Further reduced font size */
+            font-size: 0.35rem; /* Further reduced font size */
             font-weight: bold;
-            border: 0.25px solid; /* Further reduced border */
+            border: 0.1px solid; /* Further reduced border */
             transition: all 0.3s ease;
             white-space: nowrap; /* Prevent numbers from wrapping vertically */
         }
@@ -175,92 +175,139 @@
         /* --- Mobile-First Layout (Default - for iPhone 14 width) --- */
         #mainLayout {
             display: flex;
-            flex-direction: row; /* Changed to row for mobile */
-            gap: 0.25rem; /* Adjusted gap for mobile */
+            flex-direction: column; /* Column layout for mobile */
+            gap: 0.25rem; /* Adjusted gap for main layout */
             width: 100%;
             height: 100vh; /* Take full viewport height */
             max-width: 390px; /* Constrain max width to iPhone 14 width */
             margin: 0 auto; /* Center on all screens */
-            padding: 0.25rem; /* Adjusted padding for the main layout */
+            padding: 0.25rem; /* Adjusted padding around the main layout */
             box-sizing: border-box;
         }
 
-        #logDisplay {
-            width: 20%; /* 20% width for log on mobile */
-            height: 100%; /* Fill parent height */
-            max-height: none; /* Remove max height constraint */
-            padding: 0.25rem; /* Adjusted padding */
-            overflow: hidden; /* No scrollbar */
-            flex-shrink: 0; /* Prevent shrinking */
-        }
-        #logDisplay h2 {
-            font-size: 0.6rem; /* Further reduced h2 font size */
-            color: #073B4C; /* Dark Blue - consistent with infographic */
-        }
-        #logContent {
-            font-size: 0.4rem; /* Further reduced log content font size */
-            color: #4A5568; /* Text muted - consistent with infographic */
-        }
-
-
         #gameContainer {
-            width: 80%; /* 80% width for game on mobile */
-            height: 100%; /* Fill parent height */
-            max-height: none; /* Remove max height constraint */
-            flex-grow: 1; /* Allow growing */
+            width: 100%;
+            height: 100%; /* Fill mainLayout height */
+            flex-grow: 1;
             padding: 0.25rem; /* Adjusted padding */
             gap: 0.25rem; /* Adjusted gap */
-            overflow: hidden; /* No scrollbar */
+            overflow: hidden; /* No scrollbar on game container itself */
+            display: flex; /* Make gameContainer a flex column */
+            flex-direction: column;
         }
         #gameContainer h1 {
-            font-size: 1rem; /* Further reduced h1 font size */
+            font-size: 0.8rem; /* Further reduced h1 font size */
             color: #073B4C; /* Dark Blue - consistent with infographic */
+            margin-bottom: 0.1rem; /* Reduce margin */
         }
         #roundDisplay {
-            font-size: 0.7rem; /* Further reduced round display font size */
+            font-size: 0.6rem; /* Further reduced round display font size */
             color: #118AB2; /* Strong Blue - consistent with infographic */
+            margin-bottom: 0.1rem; /* Reduce margin */
         }
         #gameContainer h2 {
-            font-size: 0.7rem; /* Further reduced h2 font size */
+            font-size: 0.6rem; /* Further reduced h2 font size */
             color: #073B4C; /* Dark Blue - consistent with infographic */
+            margin-bottom: 0.1rem; /* Reduce margin */
         }
 
         #bidInput {
-            font-size: 0.8rem; /* Adjusted input font size */
-            padding: 0.2rem; /* Adjusted input padding */
-            width: 60px; /* Adjusted fixed width */
-            max-width: 60px; /* Ensure it doesn't grow beyond fixed width */
-            margin-bottom: 0; /* No margin bottom by default */
-            box-sizing: border-box;
-            border: 0.5px solid #CBD5E0; /* Gray-300 - consistent with infographic */
-            border-radius: 0.25rem; /* Adjusted border-radius */
+            flex-grow: 3; /* Ratio 3 */
+            flex-basis: 0; /* Important for flex-grow to work as ratio */
+            width: auto; /* Allow flex to control width */
+            max-width: none; /* Remove max-width constraint */
+            height: 1.5rem; /* Consistent height for all elements in this row */
+            padding: 0.05rem; /* Adjust padding to fit new height */
+            font-size: 0.6rem; /* Adjust font size */
+            box-sizing: border-box; /* Include padding in element's total width and height */
+            text-align: center;
+            border: 0.5px solid #CBD5E0;
+            border-radius: 0.25rem;
         }
         #bidInput:focus {
             outline: none;
-            border-color: #118AB2; /* Palette Blue */
-            box-shadow: 0 0 0 1.5px rgba(17, 138, 178, 0.2); /* Adjusted focus ring */
+            border-color: #118AB2;
+            box-shadow: 0 0 0 1.5px rgba(17, 138, 178, 0.2);
+        }
+
+        #prevBidBtn, #nextBidBtn {
+            flex-grow: 2; /* Ratio 2 */
+            flex-basis: 0;
+            width: auto;
+            padding: 0.05rem; /* Adjust padding for smaller buttons */
+            font-size: 0.5rem; /* Adjust font size */
+            height: 1.5rem; /* Consistent height */
+            box-sizing: border-box;
+        }
+
+        #raiseBidBtn {
+            flex-grow: 3; /* Ratio 3 */
+            flex-basis: 0;
+            width: auto;
+            padding: 0.05rem; /* Adjust padding */
+            font-size: 0.6rem; /* Adjust font size */
+            height: 1.5rem; /* Consistent height */
+            box-sizing: border-box;
         }
 
         #gameControls {
-            flex-wrap: nowrap; /* Prevent wrapping on mobile */
-            justify-content: center;
-            gap: 0.2rem; /* Adjusted gap for controls on mobile */
+            flex-direction: column; /* Column layout for rows */
+            gap: 0.1rem; /* Reduced gap between rows */
             width: 100%;
+            margin-top: 0.1rem; /* Reduced margin-top */
+            flex-shrink: 0; /* Prevent shrinking */
         }
-        #gameControls button {
-            width: calc(50% - 0.1rem); /* Each button takes roughly half width on mobile */
+        #gameControls > div { /* Apply to direct children (the two rows) */
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: stretch; /* Make all items in this row the same height */
+            gap: 0.1rem; /* Reduced gap within rows */
         }
-        /* Removed startGameBtn styling as the button is removed */
+        #coyoteBtn {
+            width: 100%; /* Full width for coyote button */
+            height: 1.5rem; /* Consistent height with the row above */
+            padding: 0.05rem;
+            font-size: 0.6rem;
+            box-sizing: border-box;
+        }
 
         #playersArea {
             grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns for players on mobile */
-            gap: 0.2rem; /* Adjusted gap for player grid on mobile */
+            gap: 0.1rem; /* Adjusted gap for player grid on mobile */
+            flex-shrink: 0; /* Prevent shrinking */
+            /* No flex-grow or overflow-y:auto here to prevent scrollbar */
         }
         /* Adjusted margin for card composition section */
         .card-composition-section {
-            margin-top: 0.2rem; /* Reduced margin-top for mobile to pull it up */
-            width: 100%; /* Ensure it spans full width */
-            text-align: center;
+            margin-top: 0.1rem; /* Further reduced margin-top */
+            flex-shrink: 0;
+        }
+        .card-composition-section h2 {
+            font-size: 0.6rem; /* Reduced font size */
+        }
+        #availableCardsArea {
+            gap: 0.05rem; /* Reduced gap */
+        }
+
+        #logDisplay {
+            height: 100px; /* Fixed height for log */
+            max-height: 100px; /* Ensure fixed height */
+            width: 100%;
+            padding: 0.25rem;
+            overflow-y: auto; /* Only log is scrollable */
+            flex-shrink: 0; /* Prevent shrinking */
+            margin-top: auto; /* Push to bottom of gameContainer */
+            background-color: #FFFFFF; /* White card background */
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        #logDisplay h2 {
+            font-size: 0.6rem;
+            margin-bottom: 0.1rem;
+        }
+        #logContent {
+            font-size: 0.4rem;
         }
 
 
@@ -286,40 +333,49 @@
                 box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Standard shadow */
                 overflow-y: auto; /* Allow scrolling on desktop if content overflows */
             }
-            #logDisplay {
+            #logDisplay { /* Revert log to be a sibling and have desktop styles */
                 width: 33.333%; /* Take 1/3 width on desktop */
                 height: 100%; /* Fill parent height */
                 max-height: none; /* Remove max height constraint */
+                padding: 1rem; /* Standard padding */
+                overflow-y: auto; /* Allow scrolling on desktop */
+                margin-top: 0; /* Remove auto margin */
+                background-color: #FFFFFF; /* White card background */
+                border-radius: 0.75rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             }
             #logDisplay h2 {
                 font-size: 1.25rem; /* Standard h2 font size for desktop */
+                margin-bottom: 1rem;
             }
             #logContent {
                 font-size: 0.875rem; /* Standard log content font size for desktop */
             }
+
             #gameContainer {
                 width: auto; /* Allow flex-grow to work on desktop */
                 max-width: none; /* Removed max-width for game container on desktop */
                 flex-grow: 1; /* Take remaining space */
                 height: 100%; /* Fill parent height */
-                max-height: none; /* Remove max height constraint */
                 margin: 0; /* Remove fixed margin for desktop */
+                overflow-y: auto; /* Allow scrolling on desktop */
             }
             #gameContainer h1 {
                 font-size: 3rem; /* Standard h1 font size for desktop */
+                margin-bottom: 1rem;
             }
             #roundDisplay {
                 font-size: 1.25rem; /* Standard round display font size for desktop */
+                margin-bottom: 1rem;
             }
             #gameContainer h2 {
                 font-size: 1.25rem; /* Standard h2 font size for desktop */
+                margin-bottom: 1rem;
             }
-            .btn {
-                padding: 0.75rem 1.5rem; /* Larger button padding for desktop */
-                font-size: 1rem; /* Larger button font for desktop */
-                width: 150px; /* Fixed width for buttons on desktop */
-                border-radius: 0.5rem; /* Standard border-radius */
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Standard shadow */
+            .btn { /* Revert to standard desktop button styles */
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+                height: auto; /* Let padding define height */
             }
             .btn-primary:hover {
                 transform: translateY(-2px); /* Standard transform */
@@ -340,12 +396,19 @@
             .player-area.active {
                 border: 2px solid #118AB2; /* Standard border */
             }
+            .player-area h3 {
+                font-size: 1.25rem; /* Revert to desktop size */
+            }
+            .player-area p {
+                font-size: 1rem; /* Revert to desktop size */
+            }
             .message-box {
                 padding: 0.75rem 1.25rem; /* Standard padding */
                 font-size: 1rem; /* Standard font size */
                 border: 1px solid #FFD166; /* Standard border */
                 border-radius: 0.5rem; /* Standard border-radius */
                 margin-top: 0.5rem; /* Standard margin */
+                margin-bottom: 0.5rem;
             }
             .hidden-card-back {
                 border: 3px solid #118AB2; /* Standard border */
@@ -362,8 +425,9 @@
                 padding: 0.75rem;
                 width: 160px; /* Wider input for desktop */
                 max-width: 160px;
-                border: 1px solid #CBD5E0; /* Standard border */
-                border-radius: 0.5rem; /* Standard border-radius */
+                height: auto; /* Let padding define height */
+                flex-grow: 0;
+                flex-basis: auto;
             }
             #bidInput:focus {
                 box-shadow: 0 0 0 3px rgba(17, 138, 178, 0.2); /* Standard focus ring */
@@ -373,13 +437,33 @@
                 gap: 1.5rem; /* Larger gap for player grid */
             }
             #gameControls {
-                flex-wrap: nowrap; /* Prevent wrapping on desktop */
+                flex-direction: column; /* Maintain column for desktop */
                 gap: 1rem; /* Larger gap for controls */
             }
-            #gameControls button {
-                width: auto; /* Buttons auto width on desktop (overridden by .btn fixed width) */
+            #gameControls > div {
+                gap: 1rem; /* Larger gap within rows */
             }
-            /* Removed startGameBtn styling as the button is removed */
+            #gameControls button {
+                width: auto; /* Buttons auto width on desktop (overridden by fixed width) */
+                height: auto; /* Let padding define height */
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+            }
+            #prevBidBtn, #nextBidBtn {
+                width: 70px; /* Fixed width for arrow buttons on desktop */
+                flex-grow: 0;
+                flex-basis: auto;
+            }
+            #raiseBidBtn {
+                width: 150px; /* Fixed width for raise button on desktop */
+                flex-grow: 0;
+                flex-basis: auto;
+            }
+            #coyoteBtn {
+                width: 250px; /* Fixed width for coyote button on desktop */
+                flex-grow: 0;
+                flex-basis: auto;
+            }
             .card-composition-section {
                 margin-top: 1.5rem; /* Standard margin-top for desktop */
             }
@@ -399,10 +483,16 @@
             <div id="playersArea" class="grid grid-cols-1 gap-4 w-full justify-items-center">
             </div>
 
-            <div id="gameControls" class="flex flex-row gap-2 mt-4 w-full justify-center items-center">
-                <input type="number" id="bidInput" placeholder="数字を入力" class="p-2 border border-gray-300 rounded-md text-center text-lg focus:outline-none focus:ring-2 focus:ring-palette-blue whitespace-nowrap">
-                <button id="raiseBidBtn" class="btn btn-primary">宣言する</button>
-                <button id="coyoteBtn" class="btn btn-danger">コヨーテ！</button>
+            <div id="gameControls" class="flex flex-col gap-2 mt-4 w-full justify-center items-center">
+                <div class="flex flex-row gap-1 justify-center items-center w-full">
+                    <input type="number" id="bidInput" placeholder="数字を入力" class="p-2 border border-gray-300 rounded-md text-center text-lg focus:outline-none focus:ring-2 focus:ring-palette-blue whitespace-nowrap">
+                    <button id="prevBidBtn" class="btn btn-primary">←</button>
+                    <button id="nextBidBtn" class="btn btn-primary">→</button>
+                    <button id="raiseBidBtn" class="btn btn-primary flex-grow">宣言する</button>
+                </div>
+                <div class="w-full">
+                    <button id="coyoteBtn" class="btn btn-danger w-full">コヨーテ！</button>
+                </div>
             </div>
 
             <div class="card-composition-section">
@@ -410,12 +500,12 @@
                 <div id="availableCardsArea" class="flex flex-wrap justify-center gap-1">
                 </div>
             </div>
-        </div>
 
-        <div id="logDisplay" class="log-container w-full overflow-y-auto">
-            <h2 class="text-xl font-bold mb-2">ゲームログ</h2>
-            <div id="logContent" class="text-sm space-y-1">
+            <div id="logDisplay" class="log-container w-full overflow-y-auto">
+                <h2 class="text-xl font-bold mb-2">ゲームログ</h2>
+                <div id="logContent" class="text-sm space-y-1">
                 </div>
+            </div>
         </div>
     </div>
 
@@ -439,10 +529,12 @@
         const bidInput = document.getElementById('bidInput');
         const raiseBidBtn = document.getElementById('raiseBidBtn');
         const coyoteBtn = document.getElementById('coyoteBtn');
-        // Removed startGameBtn reference
+        const prevBidBtn = document.getElementById('prevBidBtn'); // New button reference
+        const nextBidBtn = document.getElementById('nextBidBtn'); // New button reference
         const availableCardsArea = document.getElementById('availableCardsArea');
         const currentRoundNumberDisplay = document.getElementById('currentRoundNumber');
         const logContent = document.getElementById('logContent'); // Log content element
+        const logDisplay = document.getElementById('logDisplay'); // Reference to the log container itself
 
         // Game Initialization
         function initializePlayers(numPlayers = 3) {
@@ -581,7 +673,6 @@
             roundNumber = 0; // Reset round number for a new game
             currentRoundNumberDisplay.textContent = roundNumber; // Update display
             currentDealerIndex = -1; // Will be incremented to 0 in startRound
-            // Removed startGameBtn text/class updates
             updateMessageBox('ゲーム開始！');
             addLogEntry('新しいゲームが開始されました。', 'info');
             renderAvailableCards(); // Render the full deck initially (all un-grayed)
@@ -597,10 +688,12 @@
             isRoundActive = true;
             cardsInPlay = []; // Clear current round's cards for sum calculation
             currentBid = { value: 0, bidderIndex: -1 };
-            bidInput.value = '';
+            bidInput.value = ''; // Clear bid input
             bidInput.disabled = false;
             raiseBidBtn.disabled = false;
             coyoteBtn.disabled = false;
+            prevBidBtn.disabled = false; // Enable new buttons
+            nextBidBtn.disabled = false; // Enable new buttons
 
             // Determine next dealer (player who lost last round, or next in line)
             const activePlayers = players.filter(p => !p.isEliminated);
@@ -699,6 +792,8 @@
             bidInput.disabled = true;
             raiseBidBtn.disabled = true;
             coyoteBtn.disabled = true;
+            prevBidBtn.disabled = true; // Disable new buttons
+            nextBidBtn.disabled = true; // Disable new buttons
 
             updateMessageBox(`${players[currentPlayerIndex].name} がコヨーテ！と宣言しました！`, 'info');
             addLogEntry(`${players[currentPlayerIndex].name} がコヨーテ！と宣言しました！`, 'info');
@@ -823,27 +918,48 @@
                 bidInput.disabled = true;
                 raiseBidBtn.disabled = true;
                 coyoteBtn.disabled = true;
-                // Removed startGameBtn text/class updates
+                prevBidBtn.disabled = true; // Disable new buttons
+                nextBidBtn.disabled = true; // Disable new buttons
             } else {
                 setTimeout(startRound, 2000);
             }
         }
 
         // Event Listeners
-        // Removed startGameBtn event listener
-
         raiseBidBtn.addEventListener('click', handleBid);
         coyoteBtn.addEventListener('click', handleCoyote);
+
+        // Event listeners for new bid adjustment buttons
+        prevBidBtn.addEventListener('click', () => {
+            let currentVal = parseInt(bidInput.value);
+            // Ensure bid doesn't go below the minimum valid bid (currentBid.value + 1)
+            if (isNaN(currentVal) || currentVal <= currentBid.value + 1) {
+                bidInput.value = currentBid.value + 1;
+            } else {
+                bidInput.value = currentVal - 1;
+            }
+        });
+
+        nextBidBtn.addEventListener('click', () => {
+            let currentVal = parseInt(bidInput.value);
+            if (isNaN(currentVal)) {
+                bidInput.value = currentBid.value + 1; // Start from minimum valid bid if input is empty
+            } else {
+                bidInput.value = currentVal + 1;
+            }
+        });
 
         // Initial render (empty state) and game start
         window.onload = () => {
             renderPlayers();
             renderAvailableCards(); // Initial render of the available cards deck
-            updateMessageBox('「ゲーム開始」ボタンを押してコヨーテゲームを始めましょう！', 'info');
+            updateMessageBox('ゲーム開始！');
             addLogEntry('アプリケーションがロードされました。', 'info');
             bidInput.disabled = true;
             raiseBidBtn.disabled = true;
             coyoteBtn.disabled = true;
+            prevBidBtn.disabled = true; // Initial disable
+            nextBidBtn.disabled = true; // Initial disable
             // Automatically start the game on load
             startGame();
         };
