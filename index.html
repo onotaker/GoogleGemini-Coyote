@@ -7,6 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        html, body {
+            height: 100%; /* Ensure html and body take full viewport height */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent body scroll by default, will be auto for PC */
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #F0F4F8; /* Light Gray Background */
@@ -14,19 +20,19 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 0.5rem; /* Reduced padding for compact view on all devices */
+            padding: 0.5rem; /* Small padding around the main layout */
             box-sizing: border-box;
         }
         .game-container {
             background-color: #FFFFFF; /* White card background */
             border-radius: 0.75rem; /* rounded-xl */
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
-            padding: 1rem; /* Reduced padding for compact view */
+            padding: 1rem;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1rem; /* Reduced gap for compact view */
+            gap: 1rem;
             width: 100%; /* Ensure it takes full width of its parent */
         }
         .palette-red { color: #FF6B6B; }
@@ -42,12 +48,13 @@
         .bg-palette-dark-blue { background-color: #073B4C; }
 
         .btn {
-            padding: 0.5rem 0.8rem; /* Smaller button padding */
-            font-size: 0.85rem; /* Smaller button font */
+            padding: 0.5rem 0.8rem; /* Mobile-first button padding */
+            font-size: 0.85rem; /* Mobile-first button font size */
             border-radius: 0.5rem;
             font-weight: 600;
             transition: all 0.2s ease-in-out;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            /* width is handled by specific classes or media queries */
         }
         .btn-primary {
             background-color: #118AB2; /* Strong Blue */
@@ -74,14 +81,14 @@
             transform: none;
         }
         .player-card {
-            width: 60px; /* Mobile optimized width */
-            height: 85px; /* Mobile optimized height */
+            width: 60px; /* Mobile-first card width */
+            height: 85px; /* Mobile-first card height */
             background-color: #073B4C; /* Dark Blue for back */
             border-radius: 0.5rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.6rem; /* Mobile optimized font size */
+            font-size: 1.6rem; /* Mobile-first card font size */
             font-weight: bold;
             color: white;
             border: 3px solid #118AB2;
@@ -125,13 +132,13 @@
             border: 3px solid #118AB2;
         }
         .card-deck-item {
-            width: 30px; /* Mobile optimized width */
-            height: 45px; /* Mobile optimized height */
+            width: 30px; /* Mobile-first card deck item width */
+            height: 45px; /* Mobile-first card deck item height */
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 0.3rem;
-            font-size: 0.9rem; /* Mobile optimized font size */
+            font-size: 0.9rem; /* Mobile-first card deck item font size */
             font-weight: bold;
             border: 1px solid;
             transition: all 0.3s ease;
@@ -153,72 +160,78 @@
             font-weight: 700; /* font-bold */
         }
 
-        /* --- Base Layout for Mobile First --- */
+        /* --- Mobile-First Layout (Default) --- */
         #mainLayout {
             display: flex;
-            flex-direction: column; /* Always stack vertically */
-            gap: 0.5rem; /* Smaller gap for mobile-first */
-            width: 100%; /* Take full width */
-            min-height: 100vh; /* Take full viewport height */
-            max-width: 430px; /* Constrain max width to typical phone width */
-            margin: 0 auto; /* Center on larger screens */
+            flex-direction: column; /* Default: Stack vertically on mobile */
+            gap: 0.5rem; /* Smaller gap for mobile */
+            width: 100%;
+            height: 100%; /* Take full height of parent (body) */
+            max-width: 390px; /* Constrain max width to iPhone 14 width */
+            margin: 0 auto; /* Center on all screens */
             padding: 0.25rem; /* Smallest padding for the main layout */
             box-sizing: border-box;
         }
 
         #logDisplay {
-            height: 25vh; /* 25% of viewport height */
+            height: 25vh; /* 25% of viewport height on mobile */
             max-height: 25vh;
+            width: 100%; /* Full width on mobile */
             padding: 0.5rem;
             overflow-y: auto;
-            width: 100%; /* Ensure it takes full width */
             background-color: #FFFFFF;
             border-radius: 0.75rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            flex-shrink: 0; /* Prevent shrinking */
         }
 
         #gameContainer {
-            height: 75vh; /* 75% of viewport height */
+            height: 75vh; /* 75% of viewport height on mobile */
             max-height: 75vh;
+            flex-grow: 1; /* Take remaining space */
             padding: 0.5rem;
             gap: 0.5rem;
             overflow-y: auto; /* Allow scrolling if content overflows */
             background-color: #FFFFFF;
             border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            flex-grow: 1; /* Allow it to grow if space permits, but fixed height takes precedence */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         #bidInput {
-            font-size: 1.1rem; /* Slightly smaller font for input */
-            padding: 0.4rem; /* Slightly smaller padding for input */
-            width: 70px; /* Fixed width to prevent wrapping for "10" */
-            max-width: 70px; /* Ensure it doesn't grow */
-            box-sizing: border-box; /* Include padding in width */
+            font-size: 1.1rem; /* Mobile-first input font size */
+            padding: 0.4rem; /* Mobile-first input padding */
+            width: 100px; /* Fixed width to prevent wrapping for "10" on mobile */
+            max-width: 100px; /* Ensure it doesn't grow beyond fixed width */
+            margin-bottom: 0; /* No margin bottom by default */
+            box-sizing: border-box;
         }
 
         #gameControls {
-            flex-wrap: wrap; /* Ensure wrapping */
+            flex-wrap: wrap; /* Allow wrapping on mobile */
             justify-content: center;
-            gap: 0.4rem; /* Smaller gap for controls */
-        }
-        #gameControls input {
-            width: 100%; /* Input takes full width within gameControls */
-            max-width: 100%;
-            margin-bottom: 0.4rem; /* Add some space below input */
+            gap: 0.4rem; /* Smaller gap for controls on mobile */
+            width: 100%;
         }
         #gameControls button {
-            width: calc(50% - 0.2rem); /* Each button takes roughly half width */
+            width: calc(50% - 0.2rem); /* Each button takes roughly half width on mobile */
         }
-
-        /* Adjust player area grid for very small screens */
+        #startGameBtn {
+            width: 100%; /* Full width for start button on mobile */
+        }
         #playersArea {
-            grid-template-columns: repeat(1, minmax(0, 1fr)); /* Always 1 column for players */
-            gap: 0.4rem; /* Even smaller gap for player grid */
+            grid-template-columns: repeat(1, minmax(0, 1fr)); /* Always 1 column for players on mobile */
+            gap: 0.4rem; /* Smaller gap for player grid on mobile */
         }
 
-        /* --- Desktop/Larger Screen Adjustments (optional, if distinct look desired) --- */
-        @media (min-width: 768px) { /* Tailwind's 'md' breakpoint */
+
+        /* --- Desktop/Larger Screen Adjustments --- */
+        @media (min-width: 768px) {
+            html, body {
+                overflow: auto; /* Allow body scroll on desktop */
+            }
             #mainLayout {
                 flex-direction: row; /* On larger screens, arrange side-by-side */
                 max-width: 900px; /* Wider max width for desktop */
@@ -227,20 +240,25 @@
                 gap: 1rem;
             }
             #logDisplay {
+                width: 33.333%; /* Take 1/3 width on desktop */
                 height: 100%; /* Fill parent height */
                 max-height: none; /* Remove max height constraint */
-                width: 1/3; /* Take 1/3 width */
-                flex-shrink: 0; /* Don't shrink */
+                padding: 1rem;
             }
             #gameContainer {
+                flex-grow: 1; /* Take remaining space */
                 height: 100%; /* Fill parent height */
                 max-height: none; /* Remove max height constraint */
-                flex-grow: 1; /* Take remaining space */
                 padding: 1rem;
                 gap: 1rem;
             }
+            .btn {
+                padding: 0.75rem 1.5rem; /* Larger button padding for desktop */
+                font-size: 1rem; /* Larger button font for desktop */
+                width: 150px; /* Fixed width for buttons on desktop */
+            }
             .player-card {
-                width: 80px; /* Restore larger size for desktop */
+                width: 80px; /* Larger size for desktop */
                 height: 120px;
                 font-size: 2.5rem;
             }
@@ -249,22 +267,9 @@
                 padding: 0.75rem;
                 width: 160px; /* Wider input for desktop */
                 max-width: 160px;
-                margin-bottom: 0; /* Remove margin bottom */
-            }
-            .btn {
-                padding: 0.75rem 1.5rem; /* Larger button padding */
-                font-size: 1rem; /* Larger button font */
-                width: auto; /* Buttons auto width */
-            }
-            #gameControls {
-                flex-wrap: nowrap; /* Prevent wrapping on desktop */
-                gap: 1rem; /* Larger gap for controls */
-            }
-            #gameControls button {
-                width: auto; /* Buttons auto width */
             }
             .card-deck-item {
-                width: 40px; /* Restore larger size for desktop */
+                width: 40px; /* Larger card config items for desktop */
                 height: 60px;
                 font-size: 1.2rem;
             }
@@ -272,11 +277,21 @@
                 grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns for players on desktop */
                 gap: 1.5rem; /* Larger gap for player grid */
             }
+            #gameControls {
+                flex-wrap: nowrap; /* Prevent wrapping on desktop */
+                gap: 1rem; /* Larger gap for controls */
+            }
+            #gameControls button {
+                width: auto; /* Buttons auto width on desktop (overridden by .btn fixed width) */
+            }
+            #startGameBtn {
+                width: 250px; /* Fixed width for start button on desktop */
+            }
         }
     </style>
 </head>
 <body>
-    <div id="mainLayout" class="flex flex-col gap-4 w-full min-h-screen items-start">
+    <div id="mainLayout" class="flex flex-col gap-4 w-full h-full items-start">
         <div id="logDisplay" class="w-full bg-white rounded-xl shadow-xl p-4 overflow-y-auto">
             <h2 class="text-xl font-bold text-palette-dark-blue mb-2">ゲームログ</h2>
             <div id="logContent" class="text-sm text-gray-700 space-y-1">
@@ -293,13 +308,13 @@
             <div id="playersArea" class="grid grid-cols-1 gap-4 w-full justify-items-center">
             </div>
 
-            <div id="gameControls" class="flex flex-col md:flex-row gap-2 mt-4 w-full justify-center items-center">
-                <input type="number" id="bidInput" placeholder="数字を入力" class="p-2 border border-gray-300 rounded-md text-center text-lg w-full focus:outline-none focus:ring-2 focus:ring-palette-blue whitespace-nowrap">
-                <button id="raiseBidBtn" class="btn btn-primary w-full">宣言する</button>
-                <button id="coyoteBtn" class="btn btn-danger w-full">コヨーテ！</button>
+            <div id="gameControls" class="flex flex-row gap-2 mt-4 w-full justify-center items-center">
+                <input type="number" id="bidInput" placeholder="数字を入力" class="p-2 border border-gray-300 rounded-md text-center text-lg focus:outline-none focus:ring-2 focus:ring-palette-blue whitespace-nowrap">
+                <button id="raiseBidBtn" class="btn btn-primary">宣言する</button>
+                <button id="coyoteBtn" class="btn btn-danger">コヨーテ！</button>
             </div>
 
-            <button id="startGameBtn" class="btn btn-primary mt-4 w-full">ゲーム開始</button>
+            <button id="startGameBtn" class="btn btn-primary mt-4">ゲーム開始</button>
 
             <div class="mt-6 w-full text-center">
                 <h2 class="text-xl font-semibold text-palette-dark-blue mb-2">カード構成</h2>
