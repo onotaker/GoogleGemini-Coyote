@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コヨーテゲーム</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F4F8; /* Light Gray Background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 0.5rem; /* Reduced padding */
+            box-sizing: border-box;
+        }
+        .game-container {
+            background-color: #FFFFFF; /* White card background */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+            padding: 1rem; /* Reduced padding */
+            /* width: 100%; Removed, now handled by flex-grow */
+            /* max-width: 900px; Removed, now handled by flex-grow */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem; /* Reduced gap */
+        }
+        .palette-red { color: #FF6B6B; }
+        .palette-yellow { color: #FFD166; }
+        .palette-green { color: #06D6A0; }
+        .palette-blue { color: #118AB2; }
+        .palette-dark-blue { color: #073B4C; }
+
+        .bg-palette-red { background-color: #FF6B6B; }
+        .bg-palette-yellow { background-color: #FFD166; }
+        .bg-palette-green { background-color: #06D6A0; }
+        .bg-palette-blue { background-color: #118AB2; }
+        .bg-palette-dark-blue { background-color: #073B4C; }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-primary {
+            background-color: #118AB2; /* Strong Blue */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0d6e8b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15), 0 3px 5px -1px rgba(0, 0, 0, 0.08);
+        }
+        .btn-danger {
+            background-color: #FF6B6B; /* Vibrant Red */
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #e65a5a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15), 0 3px 5px -1px rgba(0, 0, 0, 0.08);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        .player-card {
+            width: 80px;
+            height: 120px;
+            background-color: #073B4C; /* Dark Blue for back */
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            border: 3px solid #118AB2;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .player-card.revealed {
+            background-color: #FFD166; /* Yellow for revealed */
+            color: #073B4C;
+            border-color: #FF6B6B;
+        }
+        .player-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+        .player-area.active {
+            background-color: #E0F7FA; /* Light blue tint for active player */
+            border: 2px solid #118AB2;
+        }
+        .message-box {
+            background-color: #FFFBEB; /* Light yellow */
+            border: 1px solid #FFD166;
+            color: #78350F; /* Dark brown */
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem; /* Reduced margin */
+            width: 100%;
+            text-align: center;
+            font-weight: 500;
+        }
+        .hidden-card-back {
+            background-color: #073B4C; /* Dark Blue */
+            border: 3px solid #118AB2;
+        }
+        .card-deck-item {
+            width: 40px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.3rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 1px solid;
+            transition: all 0.3s ease;
+        }
+        .card-deck-item.used {
+            background-color: #E2E8F0; /* Gray-200 */
+            color: #A0AEC0; /* Gray-400 */
+            border-color: #CBD5E0; /* Gray-300 */
+            opacity: 0.7;
+        }
+        /* Log specific styling for highlighting */
+        .log-player-name {
+            color: #118AB2; /* palette-blue */
+            font-weight: 600; /* font-semibold */
+        }
+        .log-number {
+            color: #FF6B6B; /* palette-red */
+            font-weight: 700; /* font-bold */
+        }
+    </style>
+</head>
+<body>
+    <div id="mainLayout" class="flex flex-col md:flex-row gap-4 w-full max-w-4xl mx-auto items-start">
+        <div id="logDisplay" class="w-full md:w-1/3 bg-white rounded-xl shadow-xl p-4 overflow-y-auto" style="max-height: 90vh;">
+            <h2 class="text-xl font-bold text-palette-dark-blue mb-2">ゲームログ</h2>
+            <div id="logContent" class="text-sm text-gray-700 space-y-1">
+                </div>
+        </div>
+        <div id="gameContainer" class="game-container flex-grow">
+            <h1 class="text-3xl font-bold text-palette-dark-blue mb-2">コヨーテゲーム</h1>
+            <div id="roundDisplay" class="text-xl font-semibold text-palette-blue mb-2">
+                ラウンド: <span id="currentRoundNumber">0</span>
+            </div>
+
+            <div id="messageBox" class="message-box hidden"></div>
+
+            <div id="playersArea" class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full justify-items-center">
+            </div>
+
+            <div id="gameControls" class="flex flex-col md:flex-row gap-2 mt-4 w-full justify-center items-center">
+                <input type="number" id="bidInput" placeholder="数字を入力" class="p-2 border border-gray-300 rounded-md text-center text-lg w-full md:w-40 focus:outline-none focus:ring-2 focus:ring-palette-blue">
+                <button id="raiseBidBtn" class="btn btn-primary w-full md:w-auto">宣言する</button>
+                <button id="coyoteBtn" class="btn btn-danger w-full md:w-auto">コヨーテ！</button>
+            </div>
+
+            <button id="startGameBtn" class="btn btn-primary mt-4">ゲーム開始</button>
+
+            <div class="mt-6 w-full text-center">
+                <h2 class="text-xl font-semibold text-palette-dark-blue mb-2">カード構成</h2>
+                <div id="availableCardsArea" class="flex flex-wrap justify-center gap-1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const players = [];
+        let currentDealerIndex = 0;
+        let currentPlayerIndex = 0;
+        let cardsInPlay = []; // This array holds the actual card values dealt to players for sum calculation in the current round
+        let dealtCards = []; // This array tracks all card values that have been dealt throughout the game
+        let currentBid = { value: 0, bidderIndex: -1 };
+        let isGameStarted = false;
+        let isRoundActive = false;
+        let roundNumber = 0;
+        let logEntryCounter = 0; // Counter for sequential log entries
+        const initialLives = 3;
+        const cardValues = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // 0 is the Coyote card
+
+        // DOM Elements
+        const messageBox = document.getElementById('messageBox');
+        const playersArea = document.getElementById('playersArea');
+        const bidInput = document.getElementById('bidInput');
+        const raiseBidBtn = document.getElementById('raiseBidBtn');
+        const coyoteBtn = document.getElementById('coyoteBtn');
+        const startGameBtn = document.getElementById('startGameBtn');
+        const availableCardsArea = document.getElementById('availableCardsArea');
+        const currentRoundNumberDisplay = document.getElementById('currentRoundNumber');
+        const logContent = document.getElementById('logContent'); // Log content element
+
+        // Game Initialization
+        function initializePlayers(numPlayers = 3) {
+            players.length = 0; // Clear existing players
+            for (let i = 0; i < numPlayers; i++) {
+                players.push({
+                    id: `player${i}`,
+                    name: `プレイヤー${i + 1}`,
+                    lives: initialLives,
+                    currentCard: null,
+                    isEliminated: false
+                });
+            }
+            renderPlayers();
+        }
+
+        // Render Players UI
+        function renderPlayers() {
+            playersArea.innerHTML = '';
+            players.forEach((player, index) => {
+                if (player.isEliminated) return; // Don't render eliminated players
+
+                const playerDiv = document.createElement('div');
+                playerDiv.id = player.id;
+                playerDiv.className = `player-area card ${currentPlayerIndex === index && isRoundActive ? 'active' : ''}`;
+                playerDiv.innerHTML = `
+                    <h3 class="text-xl font-semibold text-palette-dark-blue">${player.name}</h3>
+                    <p class="text-sm text-muted">ライフ: <span class="font-bold text-palette-red">${player.lives}</span></p>
+                    <div class="player-card">
+                        <span class="card-value">${player.currentCard !== null ? player.currentCard : '?'}</span>
+                    </div>
+                `;
+                playersArea.appendChild(playerDiv);
+
+                const cardElement = playerDiv.querySelector('.player-card');
+                const cardValueElement = cardElement.querySelector('.card-value');
+
+                // Always hide the user's card (player with index 0)
+                if (index === 0) {
+                    cardValueElement.textContent = '?';
+                    cardElement.classList.add('hidden-card-back');
+                    cardElement.classList.remove('revealed');
+                } else if (player.currentCard !== null) {
+                    cardValueElement.textContent = player.currentCard;
+                    cardElement.classList.add('revealed');
+                    cardElement.classList.remove('hidden-card-back');
+                } else {
+                    cardValueElement.textContent = '?';
+                    cardElement.classList.add('hidden-card-back');
+                    cardElement.classList.remove('revealed');
+                }
+            });
+        }
+
+        // Render Available Cards in the Deck Area (Card Composition)
+        function renderAvailableCards() {
+            availableCardsArea.innerHTML = '';
+            const visibleDealtCards = [];
+            players.forEach((player, index) => {
+                // Collect cards from all players EXCEPT the current user (player 0)
+                if (!player.isEliminated && index !== 0 && player.currentCard !== null) {
+                    visibleDealtCards.push(player.currentCard);
+                }
+            });
+
+            cardValues.forEach(cardValue => {
+                const cardElement = document.createElement('div');
+                // Gray out cards that are visibly in play by other players OR have been dealt in previous rounds
+                const isUsedAndVisible = visibleDealtCards.includes(cardValue);
+                const isDealtInGame = dealtCards.includes(cardValue); // Check if dealt in *any* round
+
+                cardElement.className = `card-deck-item ${isUsedAndVisible || isDealtInGame ? 'used bg-gray-300 text-gray-500 border-gray-400 opacity-70' : 'bg-white text-palette-dark-blue border-palette-blue'}`;
+                cardElement.textContent = cardValue;
+                availableCardsArea.appendChild(cardElement);
+            });
+        }
+
+        // Update the main message box
+        function updateMessageBox(msg, type = 'info') {
+            messageBox.textContent = msg;
+            messageBox.classList.remove('hidden', 'bg-red-100', 'border-red-400', 'text-red-700', 'bg-green-100', 'border-green-400', 'text-green-700', 'bg-yellow-100', 'border-yellow-400', 'text-yellow-700');
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'border-red-400', 'text-red-700');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'border-green-400', 'text-green-700');
+            } else { // Default for info messages
+                messageBox.classList.add('bg-yellow-100', 'border-yellow-400', 'text-yellow-700');
+            }
+            messageBox.classList.remove('hidden');
+        }
+
+        // Add an entry to the game log
+        function addLogEntry(msg, type = 'info') {
+            logEntryCounter++; // Increment counter
+            const logEntry = document.createElement('p');
+            let formattedMsg = `${logEntryCounter}. ${msg}`; // Use sequential number
+
+            // Highlight player names
+            formattedMsg = formattedMsg.replace(/(プレイヤー\d+)/g, '<span class="log-player-name">$1</span>');
+            // Highlight numbers, being careful not to highlight the sequential log number itself
+            formattedMsg = formattedMsg.replace(/(\d+)/g, (match, p1, offset, string) => {
+                // Check if the number is at the beginning of the string (the logEntryCounter)
+                // This is a simple check, more robust regex might be needed for complex cases
+                if (offset === 0 || (offset === String(logEntryCounter).length + 2 && string.startsWith(`${logEntryCounter}. `))) {
+                    return match; // Don't highlight the log entry number
+                }
+                return `<span class="log-number">${p1}</span>`;
+            });
+
+
+            logEntry.innerHTML = formattedMsg; // Use innerHTML to render spans
+            logEntry.classList.add('py-0.5', 'px-1', 'rounded-sm');
+
+            if (type === 'error') {
+                logEntry.classList.add('text-red-700', 'bg-red-50');
+            } else if (type === 'success') {
+                logEntry.classList.add('text-green-700', 'bg-green-50');
+            } else if (type === 'info') {
+                logEntry.classList.add('text-blue-700', 'bg-blue-50');
+            } else { // Default for general actions
+                logEntry.classList.add('text-gray-700');
+            }
+            logContent.appendChild(logEntry);
+            logContent.scrollTop = logContent.scrollHeight; // Auto-scroll to bottom
+        }
+
+
+        // Game Start
+        function startGame() {
+            logContent.innerHTML = ''; // Clear log on new game start
+            logEntryCounter = 0; // Reset log counter
+            dealtCards = []; // Reset dealt cards for a new game (all cards available again)
+            initializePlayers();
+            isGameStarted = true;
+            roundNumber = 0; // Reset round number for a new game
+            currentRoundNumberDisplay.textContent = roundNumber; // Update display
+            currentDealerIndex = -1; // Will be incremented to 0 in startRound
+            startGameBtn.textContent = 'リスタート';
+            startGameBtn.classList.remove('btn-primary');
+            startGameBtn.classList.add('btn-danger');
+            updateMessageBox('ゲーム開始！');
+            addLogEntry('新しいゲームが開始されました。', 'info');
+            renderAvailableCards(); // Render the full deck initially (all un-grayed)
+            setTimeout(startRound, 1500);
+        }
+
+        // Start New Round
+        function startRound() {
+            logContent.innerHTML = ''; // Clear log at the start of each round
+            logEntryCounter = 0; // Reset log counter for each round
+            roundNumber++;
+            currentRoundNumberDisplay.textContent = roundNumber; // Update display for new round
+            isRoundActive = true;
+            cardsInPlay = []; // Clear current round's cards for sum calculation
+            currentBid = { value: 0, bidderIndex: -1 };
+            bidInput.value = '';
+            bidInput.disabled = false;
+            raiseBidBtn.disabled = false;
+            coyoteBtn.disabled = false;
+
+            // Determine next dealer (player who lost last round, or next in line)
+            const activePlayers = players.filter(p => !p.isEliminated);
+            currentDealerIndex = (currentDealerIndex + 1) % activePlayers.length;
+            let actualDealerIndex = players.indexOf(activePlayers[currentDealerIndex]); // Get original index
+
+            currentPlayerIndex = (actualDealerIndex + 1) % players.length;
+            while(players[currentPlayerIndex].isEliminated){
+                currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            }
+
+            updateMessageBox(`${players[currentPlayerIndex].name} の番です。`);
+            addLogEntry(`ラウンド ${roundNumber} 開始！ディーラーは ${players[actualDealerIndex].name} です。`, 'info');
+
+            dealCards(); // This will update cardsInPlay and add to dealtCards
+            renderPlayers(); // Re-render players to apply card hiding logic
+            setTimeout(() => {
+                addLogEntry(`${players[currentPlayerIndex].name} の番です。`);
+                if (currentPlayerIndex !== 0) { // If AI turn
+                    setTimeout(aiTurn, 2000);
+                }
+            }, 1000);
+        }
+
+        // Deal Cards
+        function dealCards() {
+            let tempAvailableCardsForDealing = [...cardValues];
+            // Filter out cards that have already been dealt in *any* previous round of this game
+            tempAvailableCardsForDealing = tempAvailableCardsForDealing.filter(card => !dealtCards.includes(card));
+
+            // Shuffle available cards
+            for (let i = tempAvailableCardsForDealing.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [tempAvailableCardsForDealing[i], tempAvailableCardsForDealing[j]] = [tempAvailableCardsForDealing[j], tempAvailableCardsForDealing[i]];
+            }
+
+            cardsInPlay = []; // Clear for new round's sum calculation
+
+            players.forEach(player => {
+                if (!player.isEliminated) {
+                    const dealtCard = tempAvailableCardsForDealing.pop();
+                    player.currentCard = dealtCard;
+                    cardsInPlay.push(dealtCard);
+                    dealtCards.push(dealtCard); // Add to the game-long dealt cards list
+                } else {
+                    player.currentCard = null;
+                }
+            });
+            addLogEntry('カードが配られました。');
+            renderAvailableCards(); // Update the visual deck after dealing based on visible cards
+        }
+
+        // Get total sum of cards
+        function getTotalSum() {
+            return cardsInPlay.reduce((sum, card) => sum + card, 0);
+        }
+
+        // Handle Bid
+        function handleBid() {
+            const bidValue = parseInt(bidInput.value);
+            if (isNaN(bidValue) || bidValue <= currentBid.value) {
+                updateMessageBox(`無効な宣言です。${currentBid.value + 1} 以上の数字を入力してください。`, 'error');
+                addLogEntry(`無効な宣言: ${bidInput.value}。${currentBid.value + 1} 以上が必要です。`, 'error');
+                return;
+            }
+            if (bidValue > 99) { // Arbitrary high limit
+                updateMessageBox('宣言が大きすぎます。もっと小さい数字にしてください。', 'error');
+                addLogEntry(`宣言が大きすぎます: ${bidInput.value}。`, 'error');
+                return;
+            }
+
+            currentBid = { value: bidValue, bidderIndex: currentPlayerIndex };
+            updateMessageBox(`${players[currentPlayerIndex].name} が ${bidValue} と宣言しました。`);
+            addLogEntry(`${players[currentPlayerIndex].name} が ${bidValue} と宣言しました。`);
+
+            moveToNextPlayer();
+            renderPlayers();
+
+            if (currentPlayerIndex !== 0) { // If AI turn
+                setTimeout(aiTurn, 2000);
+            } else {
+                updateMessageBox(`${players[currentPlayerIndex].name} の番です。`);
+                addLogEntry(`${players[currentPlayerIndex].name} の番です。`);
+            }
+        }
+
+        // Handle Coyote (Challenge)
+        function handleCoyote() {
+            if (currentBid.value === 0) {
+                updateMessageBox('まだ宣言がありません。', 'error');
+                addLogEntry('コヨーテ宣言: まだ宣言がありません。', 'error');
+                return;
+            }
+
+            isRoundActive = false;
+            bidInput.disabled = true;
+            raiseBidBtn.disabled = true;
+            coyoteBtn.disabled = true;
+
+            updateMessageBox(`${players[currentPlayerIndex].name} がコヨーテ！と宣言しました！`, 'info');
+            addLogEntry(`${players[currentPlayerIndex].name} がコヨーテ！と宣言しました！`, 'info');
+
+            setTimeout(() => {
+                revealCards();
+                const actualSum = getTotalSum();
+                updateMessageBox(`実際の合計は ${actualSum} です。`);
+                addLogEntry(`全てのカードが公開されました。合計は ${actualSum} です。`, 'info');
+
+                let loserPlayer = null;
+                let winnerPlayer = null;
+
+                if (actualSum < currentBid.value) {
+                    // Bidder loses
+                    loserPlayer = players[currentBid.bidderIndex];
+                    winnerPlayer = players[currentPlayerIndex]; // Challenger wins
+                    updateMessageBox(`${loserPlayer.name} は宣言 (${currentBid.value}) を達成できませんでした。ライフを失います。`, 'error');
+                    addLogEntry(`${loserPlayer.name} は宣言 (${currentBid.value}) を達成できませんでした。ライフを失います。`, 'error');
+                } else {
+                    // Challenger loses
+                    loserPlayer = players[currentPlayerIndex];
+                    winnerPlayer = players[currentBid.bidderIndex]; // Bidder wins
+                    updateMessageBox(`${loserPlayer.name} は間違っていました。ライフを失います。`, 'error');
+                    addLogEntry(`${loserPlayer.name} は間違っていました。ライフを失います。`, 'error');
+                }
+
+                if (loserPlayer) {
+                    loserPlayer.lives--;
+                    if (loserPlayer.lives <= 0) {
+                        loserPlayer.isEliminated = true;
+                        updateMessageBox(`${loserPlayer.name} はゲームから脱落しました！`, 'error');
+                        addLogEntry(`${loserPlayer.name} はゲームから脱落しました！`, 'error');
+                    }
+                }
+                renderPlayers(); // Update lives and eliminated status
+
+                // After round ends, render available cards (they remain grayed out if dealt in previous rounds)
+                renderAvailableCards();
+
+                setTimeout(checkGameEnd, 2000);
+            }, 2000);
+        }
+
+        // Reveal all cards
+        function revealCards() {
+            players.forEach((player, index) => {
+                if (!player.isEliminated) {
+                    const cardElement = document.getElementById(player.id).querySelector('.player-card');
+                    const cardValueElement = cardElement.querySelector('.card-value');
+                    cardValueElement.textContent = player.currentCard;
+                    cardElement.classList.add('revealed');
+                    cardElement.classList.remove('hidden-card-back');
+                }
+            });
+        }
+
+        // Move to next active player
+        function moveToNextPlayer() {
+            let nextPlayer = currentPlayerIndex;
+            do {
+                nextPlayer = (nextPlayer + 1) % players.length;
+            } while (players[nextPlayer].isEliminated);
+            currentPlayerIndex = nextPlayer;
+        }
+
+        // AI Logic for bidding
+        function aiTurn() {
+            if (!isRoundActive) return;
+
+            const aiPlayer = players[currentPlayerIndex];
+            const visibleCardsSum = cardsInPlay.reduce((sum, card, index) => {
+                // AI should not see its own card, but it does see all other players' cards
+                if (index !== currentPlayerIndex) {
+                    return sum + card;
+                }
+                return sum;
+            }, 0);
+
+            // Simple AI: Bid slightly higher than current bid or a calculated safe bet
+            let bid = currentBid.value + 1;
+            const maxPossibleSum = visibleCardsSum + 10; // Assuming max card is 10
+            const minPossibleSum = visibleCardsSum + 0;  // Assuming min card is 0 (Coyote)
+
+            // AI will try to bid within a reasonable range or challenge if bid is too high
+            if (currentBid.value >= maxPossibleSum - 2 && Math.random() < 0.7) { // High chance to challenge if close to max
+                handleCoyote();
+            } else if (bid < minPossibleSum + 2 && Math.random() < 0.5) { // Low bid, might bluff higher
+                 bid = Math.max(bid, minPossibleSum + Math.floor(Math.random() * 5) + 1);
+                 bidInput.value = bid;
+                 handleBid();
+            }
+            else {
+                // Bid a bit higher than current, but not too high
+                bid = Math.max(bid, currentBid.value + Math.floor(Math.random() * 3) + 1);
+                // Ensure bid doesn't exceed a very high, unlikely sum too much
+                if (bid > maxPossibleSum + 3) {
+                    bid = maxPossibleSum - 1; // Try to challenge instead
+                    if (bid <= currentBid.value) { // If still too low, just challenge
+                        handleCoyote();
+                        return;
+                    }
+                }
+                bidInput.value = bid;
+                handleBid();
+            }
+        }
+
+        // Check if game has ended
+        function checkGameEnd() {
+            const activePlayers = players.filter(p => !p.isEliminated);
+            if (activePlayers.length <= 1) {
+                isGameStarted = false;
+                isRoundActive = false;
+                if (activePlayers.length === 1) {
+                    updateMessageBox(`${activePlayers[0].name} が勝利しました！おめでとうございます！`, 'success');
+                    addLogEntry(`${activePlayers[0].name} が勝利しました！おめでとうございます！`, 'success');
+                } else {
+                    updateMessageBox('全員脱落しました。引き分けです！', 'info');
+                    addLogEntry('全員脱落しました。引き分けです！', 'info');
+                }
+                bidInput.disabled = true;
+                raiseBidBtn.disabled = true;
+                coyoteBtn.disabled = true;
+                startGameBtn.textContent = '新しいゲームを開始';
+                startGameBtn.classList.remove('btn-danger');
+                startGameBtn.classList.add('btn-primary');
+            } else {
+                setTimeout(startRound, 2000);
+            }
+        }
+
+        // Event Listeners
+        startGameBtn.addEventListener('click', () => {
+            if (isGameStarted) {
+                // Confirmation dialog replacement
+                const confirmRestart = document.createElement('div');
+                confirmRestart.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50';
+                confirmRestart.innerHTML = `
+                    <div class="bg-white p-8 rounded-lg shadow-xl text-center">
+                        <p class="text-lg font-semibold mb-4 text-palette-dark-blue">ゲームをリスタートしますか？</p>
+                        <div class="flex justify-center gap-4">
+                            <button id="confirmYes" class="btn btn-danger">はい</button>
+                            <button id="confirmNo" class="btn btn-primary">いいえ</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(confirmRestart);
+
+                document.getElementById('confirmYes').addEventListener('click', () => {
+                    document.body.removeChild(confirmRestart);
+                    startGame();
+                });
+                document.getElementById('confirmNo').addEventListener('click', () => {
+                    document.body.removeChild(confirmRestart);
+                });
+            } else {
+                startGame();
+            }
+        });
+
+        raiseBidBtn.addEventListener('click', handleBid);
+        coyoteBtn.addEventListener('click', handleCoyote);
+
+        // Initial render (empty state)
+        renderPlayers();
+        renderAvailableCards(); // Initial render of the available cards deck
+        updateMessageBox('「ゲーム開始」ボタンを押してコヨーテゲームを始めましょう！', 'info');
+        addLogEntry('アプリケーションがロードされました。', 'info');
+        bidInput.disabled = true;
+        raiseBidBtn.disabled = true;
+        coyoteBtn.disabled = true;
+    </script>
+</body>
+</html>
