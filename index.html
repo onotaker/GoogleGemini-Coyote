@@ -93,6 +93,9 @@
             color: #073B4C;
             border-color: #FF6B6B;
         }
+        .player-card .card-value { /* Target the span specifically */
+            white-space: nowrap; /* Prevent numbers from wrapping vertically */
+        }
         .player-area {
             display: flex;
             flex-direction: column;
@@ -132,6 +135,7 @@
             font-weight: bold;
             border: 1px solid;
             transition: all 0.3s ease;
+            white-space: nowrap; /* Prevent numbers from wrapping vertically */
         }
         .card-deck-item.used {
             background-color: #E2E8F0; /* Gray-200 */
