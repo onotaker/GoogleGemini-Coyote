@@ -27,6 +27,7 @@
             flex-direction: column;
             align-items: center;
             gap: 1rem; /* Reduced gap for compact view */
+            width: 100%; /* Ensure it takes full width of its parent */
         }
         .palette-red { color: #FF6B6B; }
         .palette-yellow { color: #FFD166; }
@@ -41,7 +42,8 @@
         .bg-palette-dark-blue { background-color: #073B4C; }
 
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 0.8rem; /* Smaller button padding */
+            font-size: 0.85rem; /* Smaller button font */
             border-radius: 0.5rem;
             font-weight: 600;
             transition: all 0.2s ease-in-out;
@@ -72,14 +74,14 @@
             transform: none;
         }
         .player-card {
-            width: 80px;
-            height: 120px;
+            width: 60px; /* Mobile optimized width */
+            height: 85px; /* Mobile optimized height */
             background-color: #073B4C; /* Dark Blue for back */
             border-radius: 0.5rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2.5rem;
+            font-size: 1.6rem; /* Mobile optimized font size */
             font-weight: bold;
             color: white;
             border: 3px solid #118AB2;
@@ -123,13 +125,13 @@
             border: 3px solid #118AB2;
         }
         .card-deck-item {
-            width: 40px;
-            height: 60px;
+            width: 30px; /* Mobile optimized width */
+            height: 45px; /* Mobile optimized height */
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 0.3rem;
-            font-size: 1.2rem;
+            font-size: 0.9rem; /* Mobile optimized font size */
             font-weight: bold;
             border: 1px solid;
             transition: all 0.3s ease;
@@ -151,43 +153,136 @@
             font-weight: 700; /* font-bold */
         }
 
-        /* --- iPhone 14 (and similar small screens) Specific Adjustments --- */
-        @media (max-width: 767px) { /* Tailwind's 'md' breakpoint is 768px, so this targets smaller screens */
-            .player-card {
-                width: 70px; /* Slightly reduced width for player cards */
-                height: 100px; /* Adjusted height proportionally */
+        /* --- Base Layout for Mobile First --- */
+        #mainLayout {
+            display: flex;
+            flex-direction: column; /* Always stack vertically */
+            gap: 0.5rem; /* Smaller gap for mobile-first */
+            width: 100%; /* Take full width */
+            min-height: 100vh; /* Take full viewport height */
+            max-width: 430px; /* Constrain max width to typical phone width */
+            margin: 0 auto; /* Center on larger screens */
+            padding: 0.25rem; /* Smallest padding for the main layout */
+            box-sizing: border-box;
+        }
+
+        #logDisplay {
+            height: 25vh; /* 25% of viewport height */
+            max-height: 25vh;
+            padding: 0.5rem;
+            overflow-y: auto;
+            width: 100%; /* Ensure it takes full width */
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        #gameContainer {
+            height: 75vh; /* 75% of viewport height */
+            max-height: 75vh;
+            padding: 0.5rem;
+            gap: 0.5rem;
+            overflow-y: auto; /* Allow scrolling if content overflows */
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            flex-grow: 1; /* Allow it to grow if space permits, but fixed height takes precedence */
+        }
+
+        #bidInput {
+            font-size: 1.1rem; /* Slightly smaller font for input */
+            padding: 0.4rem; /* Slightly smaller padding for input */
+            width: 70px; /* Fixed width to prevent wrapping for "10" */
+            max-width: 70px; /* Ensure it doesn't grow */
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        #gameControls {
+            flex-wrap: wrap; /* Ensure wrapping */
+            justify-content: center;
+            gap: 0.4rem; /* Smaller gap for controls */
+        }
+        #gameControls input {
+            width: 100%; /* Input takes full width within gameControls */
+            max-width: 100%;
+            margin-bottom: 0.4rem; /* Add some space below input */
+        }
+        #gameControls button {
+            width: calc(50% - 0.2rem); /* Each button takes roughly half width */
+        }
+
+        /* Adjust player area grid for very small screens */
+        #playersArea {
+            grid-template-columns: repeat(1, minmax(0, 1fr)); /* Always 1 column for players */
+            gap: 0.4rem; /* Even smaller gap for player grid */
+        }
+
+        /* --- Desktop/Larger Screen Adjustments (optional, if distinct look desired) --- */
+        @media (min-width: 768px) { /* Tailwind's 'md' breakpoint */
+            #mainLayout {
+                flex-direction: row; /* On larger screens, arrange side-by-side */
+                max-width: 900px; /* Wider max width for desktop */
+                height: 90vh; /* Adjusted height for desktop view */
+                padding: 1rem;
+                gap: 1rem;
             }
-            .player-card .card-value {
-                font-size: 2rem; /* Reduced font size for numbers on player cards */
+            #logDisplay {
+                height: 100%; /* Fill parent height */
+                max-height: none; /* Remove max height constraint */
+                width: 1/3; /* Take 1/3 width */
+                flex-shrink: 0; /* Don't shrink */
+            }
+            #gameContainer {
+                height: 100%; /* Fill parent height */
+                max-height: none; /* Remove max height constraint */
+                flex-grow: 1; /* Take remaining space */
+                padding: 1rem;
+                gap: 1rem;
+            }
+            .player-card {
+                width: 80px; /* Restore larger size for desktop */
+                height: 120px;
+                font-size: 2.5rem;
             }
             #bidInput {
-                font-size: 1.2rem; /* Reduced font size for input field */
-                padding: 0.5rem; /* Slightly reduced padding for input */
-                min-width: 60px; /* Ensure a minimum width to prevent extreme squeezing */
+                font-size: 1.5rem; /* Larger font for desktop input */
+                padding: 0.75rem;
+                width: 160px; /* Wider input for desktop */
+                max-width: 160px;
+                margin-bottom: 0; /* Remove margin bottom */
             }
-            .card-deck-item {
-                width: 35px; /* Slightly reduced width for card deck items */
-                height: 50px; /* Adjusted height proportionally */
-                font-size: 1rem; /* Reduced font size for card deck items */
-            }
-            /* Adjust player area grid for very small screens if needed, though 1 column is already good */
-            #playersArea {
-                gap: 0.75rem; /* Slightly reduce gap between player areas on small screens */
+            .btn {
+                padding: 0.75rem 1.5rem; /* Larger button padding */
+                font-size: 1rem; /* Larger button font */
+                width: auto; /* Buttons auto width */
             }
             #gameControls {
-                gap: 0.5rem; /* Slightly reduce gap between control elements on small screens */
+                flex-wrap: nowrap; /* Prevent wrapping on desktop */
+                gap: 1rem; /* Larger gap for controls */
+            }
+            #gameControls button {
+                width: auto; /* Buttons auto width */
+            }
+            .card-deck-item {
+                width: 40px; /* Restore larger size for desktop */
+                height: 60px;
+                font-size: 1.2rem;
+            }
+            #playersArea {
+                grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns for players on desktop */
+                gap: 1.5rem; /* Larger gap for player grid */
             }
         }
     </style>
 </head>
 <body>
-    <div id="mainLayout" class="flex flex-col md:flex-row gap-4 w-full max-w-4xl mx-auto items-start">
-        <div id="logDisplay" class="w-full md:w-1/3 bg-white rounded-xl shadow-xl p-4 overflow-y-auto" style="max-height: 90vh;">
+    <div id="mainLayout" class="flex flex-col gap-4 w-full min-h-screen items-start">
+        <div id="logDisplay" class="w-full bg-white rounded-xl shadow-xl p-4 overflow-y-auto">
             <h2 class="text-xl font-bold text-palette-dark-blue mb-2">ゲームログ</h2>
             <div id="logContent" class="text-sm text-gray-700 space-y-1">
                 </div>
         </div>
-        <div id="gameContainer" class="game-container flex-grow">
+        <div id="gameContainer" class="game-container flex-grow bg-white rounded-xl shadow-xl p-4">
             <h1 class="text-3xl font-bold text-palette-dark-blue mb-2">コヨーテゲーム</h1>
             <div id="roundDisplay" class="text-xl font-semibold text-palette-blue mb-2">
                 ラウンド: <span id="currentRoundNumber">0</span>
@@ -195,16 +290,16 @@
 
             <div id="messageBox" class="message-box hidden"></div>
 
-            <div id="playersArea" class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full justify-items-center">
+            <div id="playersArea" class="grid grid-cols-1 gap-4 w-full justify-items-center">
             </div>
 
             <div id="gameControls" class="flex flex-col md:flex-row gap-2 mt-4 w-full justify-center items-center">
-                <input type="number" id="bidInput" placeholder="数字を入力" class="p-2 border border-gray-300 rounded-md text-center text-lg w-full md:w-40 focus:outline-none focus:ring-2 focus:ring-palette-blue whitespace-nowrap">
-                <button id="raiseBidBtn" class="btn btn-primary w-full md:w-auto">宣言する</button>
-                <button id="coyoteBtn" class="btn btn-danger w-full md:w-auto">コヨーテ！</button>
+                <input type="number" id="bidInput" placeholder="数字を入力" class="p-2 border border-gray-300 rounded-md text-center text-lg w-full focus:outline-none focus:ring-2 focus:ring-palette-blue whitespace-nowrap">
+                <button id="raiseBidBtn" class="btn btn-primary w-full">宣言する</button>
+                <button id="coyoteBtn" class="btn btn-danger w-full">コヨーテ！</button>
             </div>
 
-            <button id="startGameBtn" class="btn btn-primary mt-4">ゲーム開始</button>
+            <button id="startGameBtn" class="btn btn-primary mt-4 w-full">ゲーム開始</button>
 
             <div class="mt-6 w-full text-center">
                 <h2 class="text-xl font-semibold text-palette-dark-blue mb-2">カード構成</h2>
@@ -464,7 +559,7 @@
             }
             if (bidValue > 99) { // Arbitrary high limit
                 updateMessageBox('宣言が大きすぎます。もっと小さい数字にしてください。', 'error');
-                addLogEntry(`宣言が大きすぎます: ${bidInput.value}。`, 'error');
+                addLogEntry(`宣言が大きすぎます: ${bidValue}。`, 'error');
                 return;
             }
 
