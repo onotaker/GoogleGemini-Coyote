@@ -194,7 +194,6 @@
             overflow: hidden; /* No scrollbar on game container itself */
             display: flex; /* Make gameContainer a flex column */
             flex-direction: column;
-            justify-content: space-between; /* Distribute space vertically */
         }
         #gameContainer h1 {
             font-size: 0.8rem; /* Further reduced h1 font size */
@@ -300,8 +299,9 @@
         }
 
         #logDisplay {
-            height: 72px; /* Adjusted height to accommodate title + ~3 lines of log */
-            max-height: 72px; /* Ensure fixed height */
+            height: auto; /* Removed fixed height */
+            max-height: none; /* Removed fixed max-height */
+            flex-grow: 1; /* Allow it to take remaining space */
             width: 100%; /* Full width within gameContainer */
             padding: 0.25rem;
             flex-shrink: 0; /* Prevent shrinking */
@@ -310,7 +310,6 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             display: flex; /* Make it a flex container */
             flex-direction: column; /* Stack title and content vertically */
-            margin-top: 0.5rem; /* Added margin-top to push it down from card composition */
         }
         #logDisplay h2 {
             font-size: 0.6rem;
@@ -321,12 +320,12 @@
             flex-grow: 1; /* Allow it to take remaining space */
             overflow-y: auto; /* Make this part scrollable */
             width: 100%; /* Ensure it takes full width */
-            height: 50px; /* Fixed height for ~3 lines of log content */
-            max-height: 50px;
+            height: auto; /* Removed fixed height */
+            max-height: none; /* Removed fixed max-height */
         }
         #logContent {
-            font-size: 0.8rem; /* Adjusted font size for log content */
-            line-height: 1.3; /* Adjusted line height for log content */
+            font-size: 0.7rem; /* Adjusted font size for log content */
+            line-height: 1.2; /* Adjusted line height for log content */
             /* Removed overflow: hidden; to allow log entries to stack and cause parent to scroll */
         }
     </style>
