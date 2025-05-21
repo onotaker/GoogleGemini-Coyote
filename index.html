@@ -22,8 +22,6 @@
             border-radius: 0.75rem; /* rounded-xl */
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
             padding: 1rem; /* Reduced padding for compact view */
-            /* width: 100%; Removed, now handled by flex-grow */
-            /* max-width: 900px; Removed, now handled by flex-grow */
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -151,6 +149,34 @@
         .log-number {
             color: #FF6B6B; /* palette-red */
             font-weight: 700; /* font-bold */
+        }
+
+        /* --- iPhone 14 (and similar small screens) Specific Adjustments --- */
+        @media (max-width: 767px) { /* Tailwind's 'md' breakpoint is 768px, so this targets smaller screens */
+            .player-card {
+                width: 70px; /* Slightly reduced width for player cards */
+                height: 100px; /* Adjusted height proportionally */
+            }
+            .player-card .card-value {
+                font-size: 2rem; /* Reduced font size for numbers on player cards */
+            }
+            #bidInput {
+                font-size: 1.2rem; /* Reduced font size for input field */
+                padding: 0.5rem; /* Slightly reduced padding for input */
+                min-width: 60px; /* Ensure a minimum width to prevent extreme squeezing */
+            }
+            .card-deck-item {
+                width: 35px; /* Slightly reduced width for card deck items */
+                height: 50px; /* Adjusted height proportionally */
+                font-size: 1rem; /* Reduced font size for card deck items */
+            }
+            /* Adjust player area grid for very small screens if needed, though 1 column is already good */
+            #playersArea {
+                gap: 0.75rem; /* Slightly reduce gap between player areas on small screens */
+            }
+            #gameControls {
+                gap: 0.5rem; /* Slightly reduce gap between control elements on small screens */
+            }
         }
     </style>
 </head>
