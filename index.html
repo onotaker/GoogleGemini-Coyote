@@ -80,8 +80,8 @@
             transform: none;
         }
         .player-card {
-            width: calc((100% - 0.2rem) / 3); /* Adjusted width for 3 cards + 2 gaps */
-            height: 65px; /* Further reduced height */
+            width: 60px; /* Fixed width for mobile and desktop */
+            height: 80px; /* Fixed height for mobile and desktop */
             background-color: #073B4C; /* Dark Blue for back - consistent with infographic */
             border-radius: 0.25rem; /* Adjusted border-radius */
             display: flex;
@@ -172,14 +172,14 @@
             font-weight: 700; /* font-bold */
         }
 
-        /* --- Mobile-First Layout (Default - for iPhone 14 width) --- */
+        /* --- Universal Layout (Applies to all screen sizes) --- */
         #mainLayout {
             display: flex;
-            flex-direction: column; /* Column layout for mobile */
+            flex-direction: column; /* Column layout for all screens */
             gap: 0.25rem; /* Adjusted gap for main layout */
             width: 100%;
             height: 100vh; /* Take full viewport height */
-            max-width: 390px; /* Constrain max width to iPhone 14 width */
+            max-width: 390px; /* Constrain max width to iPhone 14 width universally */
             margin: 0 auto; /* Center on all screens */
             padding: 0.25rem; /* Adjusted padding around the main layout */
             box-sizing: border-box;
@@ -211,11 +211,15 @@
             margin-bottom: 0.1rem; /* Reduce margin */
         }
 
+        /* Fixed width for the control row */
+        .control-row-width {
+            /* Sum of fixed widths (90 + 60 + 60 + 90) + 3 gaps of 0.1rem (3 * 1.6px = 4.8px) */
+            width: calc(90px + 60px + 60px + 90px + 3 * 0.1rem);
+            max-width: 100%; /* Ensure it doesn't overflow if screen is too small */
+        }
+
         #bidInput {
-            flex-grow: 3; /* Ratio 3 */
-            flex-basis: 0; /* Important for flex-grow to work as ratio */
-            width: auto; /* Allow flex to control width */
-            max-width: none; /* Remove max-width constraint */
+            width: 90px; /* Fixed width */
             height: 1.5rem; /* Consistent height for all elements in this row */
             padding: 0.05rem; /* Adjust padding to fit new height */
             font-size: 0.6rem; /* Adjust font size */
@@ -231,9 +235,7 @@
         }
 
         #prevBidBtn, #nextBidBtn {
-            flex-grow: 2; /* Ratio 2 */
-            flex-basis: 0;
-            width: auto;
+            width: 60px; /* Fixed width */
             padding: 0.05rem; /* Adjust padding for smaller buttons */
             font-size: 0.5rem; /* Adjust font size */
             height: 1.5rem; /* Consistent height */
@@ -241,9 +243,7 @@
         }
 
         #raiseBidBtn {
-            flex-grow: 3; /* Ratio 3 */
-            flex-basis: 0;
-            width: auto;
+            width: 90px; /* Fixed width */
             padding: 0.05rem; /* Adjust padding */
             font-size: 0.6rem; /* Adjust font size */
             height: 1.5rem; /* Consistent height */
@@ -258,14 +258,14 @@
             flex-shrink: 0; /* Prevent shrinking */
         }
         #gameControls > div { /* Apply to direct children (the two rows) */
-            width: 100%;
+            width: 100%; /* Take full width of parent */
             display: flex;
-            justify-content: center;
+            justify-content: center; /* Center the fixed-width items */
             align-items: stretch; /* Make all items in this row the same height */
             gap: 0.1rem; /* Reduced gap within rows */
         }
         #coyoteBtn {
-            width: 100%; /* Full width for coyote button */
+            width: 100%; /* Full width of its parent .control-row-width */
             height: 1.5rem; /* Consistent height with the row above */
             padding: 0.05rem;
             font-size: 0.6rem;
@@ -273,8 +273,9 @@
         }
 
         #playersArea {
-            grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns for players on mobile */
+            grid-template-columns: repeat(3, 60px); /* Fixed 3 columns of 60px cards */
             gap: 0.1rem; /* Adjusted gap for player grid on mobile */
+            justify-content: center; /* Center the grid items within the playersArea */
             flex-shrink: 0; /* Prevent shrinking */
             /* No flex-grow or overflow-y:auto here to prevent scrollbar */
         }
@@ -282,9 +283,12 @@
         .card-composition-section {
             margin-top: 0.1rem; /* Further reduced margin-top */
             flex-shrink: 0;
+            width: 100%; /* Ensure it spans full width */
+            text-align: center; /* Center the h2 */
         }
         .card-composition-section h2 {
             font-size: 0.6rem; /* Reduced font size */
+            text-align: center; /* Ensure text is centered */
         }
         #availableCardsArea {
             gap: 0.05rem; /* Reduced gap */
@@ -293,11 +297,10 @@
         #logDisplay {
             height: 100px; /* Fixed height for log */
             max-height: 100px; /* Ensure fixed height */
-            width: 100%;
+            width: 100%; /* Full width within gameContainer */
             padding: 0.25rem;
             overflow-y: auto; /* Only log is scrollable */
             flex-shrink: 0; /* Prevent shrinking */
-            margin-top: auto; /* Push to bottom of gameContainer */
             background-color: #FFFFFF; /* White card background */
             border-radius: 0.75rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -308,165 +311,6 @@
         }
         #logContent {
             font-size: 0.4rem;
-        }
-
-
-        /* --- Desktop/Larger Screen Adjustments --- */
-        @media (min-width: 768px) {
-            html, body {
-                overflow: auto; /* Allow body scroll on desktop */
-            }
-            body {
-                padding: 1rem; /* Standard padding for desktop */
-            }
-            #mainLayout {
-                flex-direction: row; /* On larger screens, arrange side-by-side */
-                max-width: 900px; /* Wider max width for desktop */
-                height: 90vh; /* Adjusted height for desktop view */
-                padding: 1rem;
-                gap: 1rem;
-            }
-            .game-container, .log-container {
-                padding: 1rem;
-                gap: 1rem;
-                border-radius: 0.75rem; /* Standard border-radius */
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Standard shadow */
-                overflow-y: auto; /* Allow scrolling on desktop if content overflows */
-            }
-            #logDisplay { /* Revert log to be a sibling and have desktop styles */
-                width: 33.333%; /* Take 1/3 width on desktop */
-                height: 100%; /* Fill parent height */
-                max-height: none; /* Remove max height constraint */
-                padding: 1rem; /* Standard padding */
-                overflow-y: auto; /* Allow scrolling on desktop */
-                margin-top: 0; /* Remove auto margin */
-                background-color: #FFFFFF; /* White card background */
-                border-radius: 0.75rem;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            }
-            #logDisplay h2 {
-                font-size: 1.25rem; /* Standard h2 font size for desktop */
-                margin-bottom: 1rem;
-            }
-            #logContent {
-                font-size: 0.875rem; /* Standard log content font size for desktop */
-            }
-
-            #gameContainer {
-                width: auto; /* Allow flex-grow to work on desktop */
-                max-width: none; /* Removed max-width for game container on desktop */
-                flex-grow: 1; /* Take remaining space */
-                height: 100%; /* Fill parent height */
-                margin: 0; /* Remove fixed margin for desktop */
-                overflow-y: auto; /* Allow scrolling on desktop */
-            }
-            #gameContainer h1 {
-                font-size: 3rem; /* Standard h1 font size for desktop */
-                margin-bottom: 1rem;
-            }
-            #roundDisplay {
-                font-size: 1.25rem; /* Standard round display font size for desktop */
-                margin-bottom: 1rem;
-            }
-            #gameContainer h2 {
-                font-size: 1.25rem; /* Standard h2 font size for desktop */
-                margin-bottom: 1rem;
-            }
-            .btn { /* Revert to standard desktop button styles */
-                padding: 0.75rem 1.5rem;
-                font-size: 1rem;
-                height: auto; /* Let padding define height */
-            }
-            .btn-primary:hover {
-                transform: translateY(-2px); /* Standard transform */
-                box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15), 0 3px 5px -1px rgba(0, 0, 0, 0.08); /* Standard shadow */
-            }
-            .btn-danger:hover {
-                transform: translateY(-2px); /* Standard transform */
-                box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15), 0 3px 5px -1px rgba(0, 0, 0, 0.08); /* Standard shadow */
-            }
-            .player-card {
-                width: 80px; /* Larger size for desktop */
-                height: 120px;
-                font-size: 2.5rem;
-                border-radius: 0.5rem; /* Standard border-radius */
-                border: 3px solid #118AB2; /* Standard border */
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Standard shadow */
-            }
-            .player-area.active {
-                border: 2px solid #118AB2; /* Standard border */
-            }
-            .player-area h3 {
-                font-size: 1.25rem; /* Revert to desktop size */
-            }
-            .player-area p {
-                font-size: 1rem; /* Revert to desktop size */
-            }
-            .message-box {
-                padding: 0.75rem 1.25rem; /* Standard padding */
-                font-size: 1rem; /* Standard font size */
-                border: 1px solid #FFD166; /* Standard border */
-                border-radius: 0.5rem; /* Standard border-radius */
-                margin-top: 0.5rem; /* Standard margin */
-                margin-bottom: 0.5rem;
-            }
-            .hidden-card-back {
-                border: 3px solid #118AB2; /* Standard border */
-            }
-            .card-deck-item {
-                width: 40px; /* Larger card config items for desktop */
-                height: 60px;
-                font-size: 1.2rem;
-                border-radius: 0.3rem; /* Standard border-radius */
-                border: 1px solid; /* Standard border */
-            }
-            #bidInput {
-                font-size: 1.5rem; /* Larger font for desktop input */
-                padding: 0.75rem;
-                width: 160px; /* Wider input for desktop */
-                max-width: 160px;
-                height: auto; /* Let padding define height */
-                flex-grow: 0;
-                flex-basis: auto;
-            }
-            #bidInput:focus {
-                box-shadow: 0 0 0 3px rgba(17, 138, 178, 0.2); /* Standard focus ring */
-            }
-            #playersArea {
-                grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns for players on desktop */
-                gap: 1.5rem; /* Larger gap for player grid */
-            }
-            #gameControls {
-                flex-direction: column; /* Maintain column for desktop */
-                gap: 1rem; /* Larger gap for controls */
-            }
-            #gameControls > div {
-                gap: 1rem; /* Larger gap within rows */
-            }
-            #gameControls button {
-                width: auto; /* Buttons auto width on desktop (overridden by fixed width) */
-                height: auto; /* Let padding define height */
-                padding: 0.75rem 1.5rem;
-                font-size: 1rem;
-            }
-            #prevBidBtn, #nextBidBtn {
-                width: 70px; /* Fixed width for arrow buttons on desktop */
-                flex-grow: 0;
-                flex-basis: auto;
-            }
-            #raiseBidBtn {
-                width: 150px; /* Fixed width for raise button on desktop */
-                flex-grow: 0;
-                flex-basis: auto;
-            }
-            #coyoteBtn {
-                width: 250px; /* Fixed width for coyote button on desktop */
-                flex-grow: 0;
-                flex-basis: auto;
-            }
-            .card-composition-section {
-                margin-top: 1.5rem; /* Standard margin-top for desktop */
-            }
         }
     </style>
 </head>
@@ -484,7 +328,7 @@
             </div>
 
             <div id="gameControls" class="flex flex-col gap-2 mt-4 w-full justify-center items-center">
-                <div class="flex flex-row gap-1 justify-center items-center w-full">
+                <div class="flex flex-row gap-1 justify-center items-center">
                     <input type="number" id="bidInput" placeholder="数字を入力" class="p-2 border border-gray-300 rounded-md text-center text-lg focus:outline-none focus:ring-2 focus:ring-palette-blue whitespace-nowrap">
                     <button id="prevBidBtn" class="btn btn-primary">←</button>
                     <button id="nextBidBtn" class="btn btn-primary">→</button>
