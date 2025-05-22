@@ -96,15 +96,16 @@
             box-shadow: none;
             transform: none;
         }
+        /* Increased size for player card */
         .player-card {
-            width: 60px;
-            height: 80px;
+            width: 90px; /* Increased from 60px */
+            height: 120px; /* Increased from 80px */
             background-color: #073B4C; /* Dark Blue for back */
             border-radius: 0.25rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1rem;
+            font-size: 1.5rem; /* Increased from 1rem */
             font-weight: bold;
             color: white;
             border: 1.5px solid #118AB2;
@@ -119,12 +120,13 @@
         .player-card .card-value {
             white-space: nowrap;
         }
+        /* Increased size for player area elements */
         .player-area {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.05rem;
-            padding: 0.05rem;
+            gap: 0.1rem; /* Increased from 0.05rem */
+            padding: 0.1rem; /* Increased from 0.05rem */
             border-radius: 0.15rem;
             transition: background-color 0.3s ease;
         }
@@ -133,14 +135,14 @@
             border: 0.5px solid #118AB2;
         }
         .player-area h3 {
-            font-size: 0.5rem;
+            font-size: 0.75rem; /* Increased from 0.5rem */
             font-weight: 600;
             color: #073B4C;
             margin-bottom: 0;
             line-height: 1;
         }
         .player-area p {
-            font-size: 0.5rem;
+            font-size: 0.75rem; /* Increased from 0.5rem */
             line-height: 1;
         }
         .message-box {
@@ -185,6 +187,11 @@
         .log-number {
             color: #FF6B6B;
             font-weight: 700;
+        }
+
+        /* Style for depleted lives */
+        .depleted-life {
+            color: #A0AEC0; /* Gray color for lost lives */
         }
 
         #gameContainer h1 {
@@ -572,9 +579,20 @@
                 const playerDiv = document.createElement('div');
                 playerDiv.id = player.id;
                 playerDiv.className = `player-area ${currentPlayerIndex === index && isRoundActive ? 'active' : ''}`;
+                
+                // Generate heart icons based on lives
+                let livesHtml = '';
+                for (let i = 0; i < initialLives; i++) {
+                    if (i < player.lives) {
+                        livesHtml += '<span class="font-bold palette-red">❤️</span>';
+                    } else {
+                        livesHtml += '<span class="font-bold depleted-life">🤍</span>'; // Gray heart for depleted lives
+                    }
+                }
+
                 playerDiv.innerHTML = `
                     <h3>${player.name}</h3>
-                    <p>ライフ: <span class="font-bold palette-red">${'❤️'.repeat(player.lives)}</span></p>
+                    <p>ライフ: ${livesHtml}</p>
                     <div class="player-card">
                         <span class="card-value">?</span>
                     </div>`;
