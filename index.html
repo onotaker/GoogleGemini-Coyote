@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>コヨーテゲーム</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -26,6 +26,11 @@
             justify-content: center; /* Center #mainLayout horizontally */
             align-items: flex-start; /* Align #mainLayout to the top */
             overflow: hidden; /* Prevent body scroll, assuming app is self-contained */
+            -webkit-user-select: none; /* Disable text selection for iOS */
+            -moz-user-select: none; /* Disable text selection for Firefox */
+            -ms-user-select: none; /* Disable text selection for IE/Edge */
+            user-select: none; /* Disable text selection for modern browsers */
+            touch-action: manipulation; /* Prevent double-tap zoom and other default gestures */
         }
         #mainLayout {
             display: flex;
@@ -79,6 +84,7 @@
             border: none; /* デフォルトのボーダーを削除 */
             position: relative;
             overflow: hidden;
+            -webkit-tap-highlight-color: transparent; /* Disable tap highlight for iOS */
         }
         .btn-primary {
             background: linear-gradient(45deg, #118AB2 0%, #06D6A0 100%); /* 青から緑へのグラデーション */
