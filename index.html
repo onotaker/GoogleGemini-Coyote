@@ -48,8 +48,8 @@
         .bg-palette-dark-blue { background-color: #073B4C; }
 
         .btn {
-            padding: 0.2rem 0.4rem; /* Further reduced button padding */
-            font-size: 0.6rem; /* Further reduced button font size */
+            padding: 0.4rem 0.8rem; /* Increased button padding */
+            font-size: 0.8rem; /* Increased button font size */
             border-radius: 0.25rem; /* Reduced border-radius */
             font-weight: 600;
             transition: all 0.2s ease-in-out;
@@ -144,7 +144,7 @@
             border: 1.5px solid #118AB2; /* Adjusted border */
         }
         .card-deck-item {
-            width: calc((100% - (5 * 0.05rem)) / 6); /* Width for 6 items per row, accounting for gaps */
+            /* width will be set dynamically in JS */
             height: 45px; /* Increased card deck item height */
             display: flex;
             align-items: center;
@@ -271,6 +271,8 @@
             font-size: 0.6rem;
             box-sizing: border-box;
         }
+        /* Removed #nextRoundBtn, #showCardCompositionBtn from here */
+
 
         #playersArea {
             grid-template-columns: repeat(3, 1fr); /* Evenly spaced columns */
@@ -291,11 +293,12 @@
             text-align: center; /* Ensure text is centered */
         }
         #availableCardsArea {
-            gap: 0.05rem; /* Reduced gap */
-            justify-content: center; /* Center cards */
+            /* Changed to column to stack rows */
+            display: flex;
+            flex-direction: column;
+            gap: 0.05rem; /* Reduced gap between rows */
+            justify-content: center; /* Center rows */
             width: 100%; /* Ensure it takes full width */
-            display: flex; /* Ensure flexbox for wrapping */
-            flex-wrap: wrap; /* Allow wrapping to new lines */
         }
 
         #logDisplay {
@@ -317,16 +320,70 @@
             flex-shrink: 0; /* Prevent title from shrinking */
         }
         .log-content-scrollable { /* New container for scrollable log content */
-            flex-grow: 1; /* Allow it to take remaining space */
             overflow-y: auto; /* Make this part scrollable */
             width: 100%; /* Ensure it takes full width */
-            height: auto; /* Removed fixed height */
-            max-height: none; /* Removed fixed max-height */
+            height: 6.7rem; /* Fixed height for 5 lines of log content (0.7rem font-size * 1.2 line-height + 0.5rem padding) * 5 lines */
         }
         #logContent {
             font-size: 0.7rem; /* Adjusted font size for log content */
             line-height: 1.2; /* Adjusted line height for log content */
-            /* Removed overflow: hidden; to allow log entries to stack and cause parent to scroll */
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Ensure it's on top of other content */
+            backdrop-filter: blur(2px); /* Optional: blur background */
+        }
+
+        .modal-content {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            max-width: 350px; /* Adjusted for iPhone 14 width */
+            max-height: 90vh; /* Max height to fit screen, allow scroll if content is too long */
+            overflow-y: auto; /* Enable scrolling for content if it exceeds max-height */
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative; /* For positioning close button */
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #073B4C;
+            font-weight: bold;
+        }
+
+        /* New styles for bottom buttons */
+        #bottomButtons {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem; /* Increased gap between buttons */
+            width: 100%;
+            margin-top: 0.25rem; /* Add some space above */
+            flex-shrink: 0;
+        }
+        #bottomButtons .btn {
+            flex-grow: 1; /* Allow buttons to grow and fill space */
+            width: calc(50% - 0.25rem); /* Calculate width for two buttons with gap */
+            height: 2rem; /* Make buttons taller */
+            font-size: 0.7rem; /* Adjust font size for larger buttons */
         }
     </style>
 </head>
@@ -353,9 +410,9 @@
                 <div class="w-full control-row-width">
                     <button id="coyoteBtn" class="btn btn-danger w-full">コヨーテ！</button>
                 </div>
-            </div>
+                </div>
 
-            <div class="card-composition-section">
+            <div class="card-composition-section hidden">
                 <h2 class="text-xl font-semibold mb-2">カード構成</h2>
                 <div id="availableCardsArea" class="flex flex-wrap justify-center gap-1">
                 </div>
@@ -368,6 +425,20 @@
                     </div>
                 </div>
             </div>
+
+            <div id="bottomButtons">
+                <button id="nextRoundBtn" class="btn btn-primary hidden">次のラウンドに進む</button>
+                <button id="showCardCompositionBtn" class="btn btn-primary">カード構成を表示</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cardCompositionModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="closeModalBtn">✖</button>
+            <h2 class="text-xl font-bold mb-2 text-center text-palette-dark-blue">カード構成</h2>
+            <div id="modalAvailableCardsArea" class="flex flex-wrap justify-center gap-1">
+                </div>
         </div>
     </div>
 
@@ -383,8 +454,59 @@
         let roundNumber = 0;
         let logEntryCounter = 0; // Counter for sequential log entries
         const initialLives = 3;
-        // Updated cardValues to include two 0s and include 5, as per user request
-        const cardValues = [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
+        
+        // Define the full initial deck based on the new composition
+        const initialCardDeck = [
+            // -10: 1枚
+            -10,
+            // -5: 2枚
+            -5, -5,
+            // 0: 4枚
+            0, 0, 0, 0,
+            // 0(夜): 1枚
+            '0_夜', 
+            // 1: 4枚
+            1, 1, 1, 1,
+            // 2: 4枚
+            2, 2, 2, 2,
+            // 3: 4枚
+            3, 3, 3, 3,
+            // 4: 4枚
+            4, 4, 4, 4,
+            // 5: 4枚
+            5, 5, 5, 5,
+            // 10: 4枚
+            10, 10, 10, 10,
+            // 15: 2枚
+            15, 15,
+            // 20: 1枚
+            20,
+            // ×2: 1枚
+            '×2',
+            // MAX→0: 1枚
+            'MAX→0',
+            // ?: 1枚
+            '？'
+        ];
+
+        // Define the display order and counts for the "Card Composition" section
+        const cardCompositionDisplayOrder = [
+            { value: 20, count: 1 },
+            { value: 15, count: 2 },
+            { value: 10, count: 4 },
+            { value: 5, count: 4 },
+            { value: 4, count: 4 },
+            { value: 3, count: 4 },
+            { value: 2, count: 4 },
+            { value: 1, count: 4 },
+            { value: 0, count: 4 },
+            { value: '0_夜', count: 1 }, // 0(夜)を明示的に追加
+            { value: -5, count: 2 },
+            { value: -10, count: 1 },
+            { value: '×2', count: 1 },
+            { value: 'MAX→0', count: 1 },
+            { value: '？', count: 1 }
+        ];
 
         // DOM Elements
         const messageBox = document.getElementById('messageBox');
@@ -394,10 +516,18 @@
         const coyoteBtn = document.getElementById('coyoteBtn');
         const prevBidBtn = document.getElementById('prevBidBtn'); // New button reference
         const nextBidBtn = document.getElementById('nextBidBtn'); // New button reference
-        const availableCardsArea = document.getElementById('availableCardsArea');
+        // const availableCardsArea = document.getElementById('availableCardsArea'); // この要素はモーダル内に移動
         const currentRoundNumberDisplay = document.getElementById('currentRoundNumber');
         const logContent = document.getElementById('logContent'); // Log content element
         const logDisplay = document.getElementById('logDisplay'); // Reference to the log container itself
+        const nextRoundBtn = document.getElementById('nextRoundBtn'); // New button reference
+
+        // Modal related DOM elements
+        const showCardCompositionBtn = document.getElementById('showCardCompositionBtn');
+        const cardCompositionModal = document.getElementById('cardCompositionModal');
+        const modalAvailableCardsArea = document.getElementById('modalAvailableCardsArea'); // モーダル内のカード表示エリア
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
 
         // Game Initialization
         function initializePlayers(numPlayers = 3) {
@@ -422,6 +552,7 @@
 
                 const playerDiv = document.createElement('div');
                 playerDiv.id = player.id;
+                // Active player highlighting only when round is active
                 playerDiv.className = `player-area card ${currentPlayerIndex === index && isRoundActive ? 'active' : ''}`;
                 // Adjusted player name and life text sizes
                 playerDiv.innerHTML = `
@@ -436,16 +567,20 @@
                 const cardElement = playerDiv.querySelector('.player-card');
                 const cardValueElement = cardElement.querySelector('.card-value');
 
-                // Always hide the user's card (player with index 0)
-                if (index === 0) {
+                // Logic for showing/hiding cards
+                // If the round is active AND it's the user's card (player 0), hide it.
+                // Otherwise (round is over, or it's an AI player), reveal the card.
+                if (isRoundActive && index === 0) {
                     cardValueElement.textContent = '?';
                     cardElement.classList.add('hidden-card-back');
                     cardElement.classList.remove('revealed');
                 } else if (player.currentCard !== null) {
-                    cardValueElement.textContent = player.currentCard;
+                    // For AI players or when round is over, show the card
+                    cardValueElement.textContent = player.currentCard; // Display string for special cards
                     cardElement.classList.add('revealed');
                     cardElement.classList.remove('hidden-card-back');
                 } else {
+                    // Default for non-active, non-revealed (e.g., eliminated player's card area)
                     cardValueElement.textContent = '?';
                     cardElement.classList.add('hidden-card-back');
                     cardElement.classList.remove('revealed');
@@ -453,26 +588,57 @@
             });
         }
 
-        // Render Available Cards in the Deck Area (Card Composition)
+        // Render Available Cards in the Deck Area (Card Composition) - Now renders into the modal
         function renderAvailableCards() {
-            availableCardsArea.innerHTML = '';
-            const visibleDealtCards = [];
+            modalAvailableCardsArea.innerHTML = ''; // Clear previous cards in modal
+
+            // Create counts for cards currently in play (visible to other players) for this round
+            const currentRoundVisibleCardCounts = {};
             players.forEach((player, index) => {
-                // Collect cards from all players EXCEPT the current user (player 0)
                 if (!player.isEliminated && index !== 0 && player.currentCard !== null) {
-                    visibleDealtCards.push(player.currentCard);
+                    currentRoundVisibleCardCounts[player.currentCard] = (currentRoundVisibleCardCounts[player.currentCard] || 0) + 1;
                 }
             });
 
-            cardValues.forEach(cardValue => {
-                const cardElement = document.createElement('div');
-                // Gray out cards that are visibly in play by other players OR have been dealt in previous rounds
-                const isUsedAndVisible = visibleDealtCards.includes(cardValue);
-                const isDealtInGame = dealtCards.includes(cardValue); // Check if dealt in *any* round
+            // Create counts for all cards dealt throughout the game
+            const dealtCardCountsInGame = {};
+            dealtCards.forEach(card => {
+                dealtCardCountsInGame[card] = (dealtCardCountsInGame[card] || 0) + 1;
+            });
 
-                cardElement.className = `card-deck-item ${isUsedAndVisible || isDealtInGame ? 'used bg-gray-300 text-gray-500 border-gray-400 opacity-70' : 'bg-white text-palette-dark-blue border-palette-blue'}`;
-                cardElement.textContent = cardValue;
-                availableCardsArea.appendChild(cardElement);
+            // Create mutable copies of counts for rendering, so we can "consume" them
+            const tempDealtCounts = { ...dealtCardCountsInGame };
+            const tempVisibleCounts = { ...currentRoundVisibleCardCounts };
+
+            cardCompositionDisplayOrder.forEach(cardType => {
+                const rowDiv = document.createElement('div');
+                // Use flexbox for the row to center items and control spacing
+                rowDiv.className = 'flex flex-row justify-center items-center gap-0.05rem w-full';
+                modalAvailableCardsArea.appendChild(rowDiv);
+
+                // Calculate width dynamically for each card in this row
+                // This ensures cards are evenly spaced and fit the row
+                const itemWidth = `calc((100% - ${(cardType.count - 1) * 0.05}rem) / ${cardType.count})`;
+
+                for (let i = 0; i < cardType.count; i++) {
+                    const cardValue = cardType.value;
+                    const cardElement = document.createElement('div');
+
+                    let isGrayed = false;
+                    // Prioritize graying out cards visible in the current round, then any dealt cards
+                    if (tempVisibleCounts[cardValue] && tempVisibleCounts[cardValue] > 0) {
+                        isGrayed = true;
+                        tempVisibleCounts[cardValue]--; // "Consume" one visible card for rendering
+                    } else if (tempDealtCounts[cardValue] && tempDealtCounts[cardValue] > 0) {
+                        isGrayed = true;
+                        tempDealtCounts[cardValue]--; // "Consume" one dealt card for rendering
+                    }
+
+                    cardElement.className = `card-deck-item ${isGrayed ? 'used bg-gray-300 text-gray-500 border-gray-400 opacity-70' : 'bg-white text-palette-dark-blue border-palette-blue'}`;
+                    cardElement.style.width = itemWidth; // Apply dynamic width
+                    cardElement.textContent = cardValue;
+                    rowDiv.appendChild(cardElement);
+                }
             });
         }
 
@@ -538,7 +704,8 @@
             currentDealerIndex = -1; // Will be incremented to 0 in startRound
             updateMessageBox('ゲーム開始！');
             addLogEntry('新しいゲームが開始されました。', 'info');
-            renderAvailableCards(); // Render the full deck initially (all un-grayed)
+            // renderAvailableCards(); // Moved to be called when modal is shown
+            nextRoundBtn.classList.add('hidden'); // ゲーム開始時は非表示にする
             setTimeout(startRound, 1500);
         }
 
@@ -548,7 +715,7 @@
             logEntryCounter = 0; // Reset log counter for each round
             roundNumber++;
             currentRoundNumberDisplay.textContent = roundNumber; // Update display for new round
-            isRoundActive = true;
+            isRoundActive = true; // Set round as active
             cardsInPlay = []; // Clear current round's cards for sum calculation
             currentBid = { value: 0, bidderIndex: -1 };
             bidInput.value = ''; // Clear bid input
@@ -557,6 +724,7 @@
             coyoteBtn.disabled = false;
             prevBidBtn.disabled = false; // Enable new buttons
             nextBidBtn.disabled = false; // Enable new buttons
+            nextRoundBtn.classList.add('hidden'); // ラウンド開始時は非表示にする
 
             // Determine next dealer (player who lost last round, or next in line)
             const activePlayers = players.filter(p => !p.isEliminated);
@@ -583,35 +751,71 @@
 
         // Deal Cards
         function dealCards() {
-            let tempAvailableCardsForDealing = [...cardValues];
-            // Filter out cards that have already been dealt in *any* previous round of this game
-            tempAvailableCardsForDealing = tempAvailableCardsForDealing.filter(card => !dealtCards.includes(card));
+            // Create a temporary deck for this round's dealing, starting from the full initial deck
+            let cardsRemainingInDeck = [];
+            const tempDealtCounts = {}; // To track how many of each card are already dealt
 
-            // Shuffle available cards
-            for (let i = tempAvailableCardsForDealing.length - 1; i > 0; i--) {
+            // Populate tempDealtCounts from the global dealtCards array
+            dealtCards.forEach(card => {
+                tempDealtCounts[card] = (tempDealtCounts[card] || 0) + 1;
+            });
+
+            // Build cardsRemainingInDeck by iterating through initialCardDeck and removing dealt instances
+            initialCardDeck.forEach(card => {
+                if (tempDealtCounts[card] && tempDealtCounts[card] > 0) {
+                    tempDealtCounts[card]--; // "Consume" one dealt instance
+                } else {
+                    cardsRemainingInDeck.push(card); // This card instance is available
+                }
+            });
+
+            // Shuffle the remaining cards
+            for (let i = cardsRemainingInDeck.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [tempAvailableCardsForDealing[i], tempAvailableCardsForDealing[j]] = [tempAvailableCardsForDealing[j], tempAvailableCardsForDealing[i]];
+                [cardsRemainingInDeck[i], cardsRemainingInDeck[j]] = [cardsRemainingInDeck[j], cardsRemainingInDeck[i]];
             }
 
             cardsInPlay = []; // Clear for new round's sum calculation
 
             players.forEach(player => {
                 if (!player.isEliminated) {
-                    const dealtCard = tempAvailableCardsForDealing.pop();
-                    player.currentCard = dealtCard;
-                    cardsInPlay.push(dealtCard);
-                    dealtCards.push(dealtCard); // Add to the game-long dealt cards list
+                    if (cardsRemainingInDeck.length > 0) {
+                        const dealtCard = cardsRemainingInDeck.pop();
+                        player.currentCard = dealtCard;
+                        cardsInPlay.push(dealtCard);
+                        dealtCards.push(dealtCard); // Add to the game-long dealt cards list
+                    } else {
+                        console.warn("Not enough cards left to deal to all active players in dealCards.");
+                        player.currentCard = null; // Assign null if no cards left
+                    }
                 } else {
-                    player.currentCard = null;
+                    player.currentCard = null; // Eliminated players don't get a card
                 }
             });
             addLogEntry('カードが配られました。');
-            renderAvailableCards(); // Update the visual deck after dealing based on visible cards
+            // renderAvailableCards(); // This function is now called when the modal is shown
         }
 
         // Get total sum of cards
         function getTotalSum() {
-            return cardsInPlay.reduce((sum, card) => sum + card, 0);
+            let sum = 0;
+            // This function currently only sums numeric cards.
+            // Special card effects (e.g., '×2', 'MAX→0', '0_夜', '？') are NOT implemented here.
+            // They will require additional logic to modify the sum based on their rules.
+            cardsInPlay.forEach(card => {
+                if (typeof card === 'number') {
+                    sum += card;
+                } else {
+                    // Handle special cards for sum calculation if their effect is a direct number addition/subtraction
+                    // For '0_夜', it's still 0 for sum calculation for now.
+                    // For '×2', 'MAX→0', '？', their effects need to be applied to the *final* sum, not individual card values.
+                    // This is a placeholder for future logic.
+                    if (card === '0_夜') {
+                        sum += 0; // Treat '0_夜' as 0 for sum for now.
+                    }
+                }
+            });
+            return sum;
         }
 
         // Handle Bid
@@ -651,7 +855,7 @@
                 return;
             }
 
-            isRoundActive = false;
+            isRoundActive = false; // Set round as inactive immediately
             bidInput.disabled = true;
             raiseBidBtn.disabled = true;
             coyoteBtn.disabled = true;
@@ -662,8 +866,7 @@
             addLogEntry(`${players[currentPlayerIndex].name} がコヨーテ！と宣言しました！`, 'info');
 
             setTimeout(() => {
-                revealCards();
-                const actualSum = getTotalSum();
+                const actualSum = getTotalSum(); // This sum does not yet account for special card effects
                 updateMessageBox(`実際の合計は ${actualSum} です。`);
                 addLogEntry(`全てのカードが公開されました。合計は ${actualSum} です。`, 'info');
 
@@ -674,158 +877,193 @@
                     // Bidder loses
                     loserPlayer = players[currentBid.bidderIndex];
                     winnerPlayer = players[currentPlayerIndex]; // Challenger wins
-                    updateMessageBox(`${loserPlayer.name} は宣言 (${currentBid.value}) を達成できませんでした。ライフを失います。`, 'error');
-                    addLogEntry(`${loserPlayer.name} は宣言 (${currentBid.value}) を達成できませんでした。ライフを失います。`, 'error');
+                    updateMessageBox(`${loserPlayer.name} は宣言 (${currentBid.value}) を達成できませんでした！`, 'error');
+                    addLogEntry(`${loserPlayer.name} は宣言 (${currentBid.value}) を達成できませんでした。`, 'error');
                 } else {
                     // Challenger loses
                     loserPlayer = players[currentPlayerIndex];
                     winnerPlayer = players[currentBid.bidderIndex]; // Bidder wins
-                    updateMessageBox(`${loserPlayer.name} は間違っていました。ライフを失います。`, 'error');
-                    addLogEntry(`${loserPlayer.name} は間違っていました。ライフを失います。`, 'error');
+                    updateMessageBox(`${winnerPlayer.name} の宣言 (${currentBid.value}) が正しかったです！`, 'success');
+                    addLogEntry(`${winnerPlayer.name} の宣言 (${currentBid.value}) が正しかったです。`, 'success');
                 }
 
                 if (loserPlayer) {
                     loserPlayer.lives--;
+                    addLogEntry(`${loserPlayer.name} はライフを1失いました。残りライフ: ${loserPlayer.lives}`, 'error');
                     if (loserPlayer.lives <= 0) {
                         loserPlayer.isEliminated = true;
-                        updateMessageBox(`${loserPlayer.name} はゲームから脱落しました！`, 'error');
-                        addLogEntry(`${loserPlayer.name} はゲームから脱落しました！`, 'error');
+                        addLogEntry(`${loserPlayer.name} は脱落しました！`, 'error');
                     }
                 }
-                renderPlayers(); // Update lives and eliminated status
+                renderPlayers(); // Re-render players to show updated lives and revealed cards
 
-                // After round ends, render available cards (they remain grayed out if dealt in previous rounds)
-                renderAvailableCards();
-
-                setTimeout(checkGameEnd, 2000);
-            }, 2000);
+                setTimeout(() => {
+                    checkGameOver();
+                    // ゲームオーバーでなければ次のラウンドボタンを表示
+                    if (players.filter(p => !p.isEliminated).length > 1) { // プレイヤーが2人以上残っている場合
+                        nextRoundBtn.classList.remove('hidden');
+                        updateMessageBox('次のラウンドに進むか、新しいゲームを開始してください。');
+                    }
+                }, 2000);
+            }, 1500);
         }
 
-        // Reveal all cards
+        // Reveal all cards (This function is now redundant for its original purpose, but kept for clarity if needed elsewhere)
         function revealCards() {
-            players.forEach((player, index) => {
-                if (!player.isEliminated) {
-                    const cardElement = document.getElementById(player.id).querySelector('.player-card');
-                    const cardValueElement = cardElement.querySelector('.card-value');
-                    cardValueElement.textContent = player.currentCard;
-                    cardElement.classList.add('revealed');
-                    cardElement.classList.remove('hidden-card-back');
-                }
-            });
+            // The card revelation is now primarily handled by renderPlayers when isRoundActive is false
+            // This function can be removed or repurposed if its direct DOM manipulation is no longer needed.
+            // For now, it's not strictly necessary as renderPlayers will do the job.
         }
 
-        // Move to next active player
+        // Move to the next active player
         function moveToNextPlayer() {
             let nextPlayer = currentPlayerIndex;
-            do {
+            let foundNext = false;
+            for (let i = 0; i < players.length; i++) {
                 nextPlayer = (nextPlayer + 1) % players.length;
-            } while (players[nextPlayer].isEliminated);
-            currentPlayerIndex = nextPlayer;
+                if (!players[nextPlayer].isEliminated) {
+                    currentPlayerIndex = nextPlayer;
+                    foundNext = true;
+                    break;
+                }
+            }
+            if (!foundNext) {
+                // This case should ideally not happen if checkGameOver is working
+                console.error("No next active player found. Game should be over.");
+            }
         }
 
-        // AI Logic for bidding
+        // Check if game is over
+        function checkGameOver() {
+            const activePlayers = players.filter(p => !p.isEliminated);
+            if (activePlayers.length <= 1) {
+                isGameStarted = false;
+                isRoundActive = false;
+                updateMessageBox(`${activePlayers[0].name} の勝利です！ゲーム終了！`, 'success');
+                addLogEntry(`${activePlayers[0].name} の勝利です！ゲーム終了！`, 'success');
+                // ゲームオーバーの場合は「次のラウンドに進む」ボタンを表示しない
+                nextRoundBtn.classList.add('hidden');
+                // 新しいゲームを開始するボタンなどを表示するロジックをここに追加
+                // 例: リセットボタンの表示
+                setTimeout(() => {
+                    // ここで新しいゲームを開始するボタンなどを表示する
+                    // 例えば、startGame() を呼び出すためのボタンを表示するなど
+                    updateMessageBox('新しいゲームを開始するにはページをリロードしてください。'); // 仮のメッセージ
+                }, 2000);
+            }
+        }
+
+        // AI Logic
         function aiTurn() {
             if (!isRoundActive) return;
 
             const aiPlayer = players[currentPlayerIndex];
-            const visibleCardsSum = cardsInPlay.reduce((sum, card, index) => {
-                // AI should not see its own card, but it does see all other players' cards
-                if (index !== currentPlayerIndex) {
+            // AIのカードも考慮して合計値を計算（特殊カードは数値として扱われるか、無視される）
+            // AIの意思決定ロジックは、特殊カードの効果を考慮するように拡張する必要があります。
+            const visibleCardsSum = cardsInPlay.filter((_, index) => index !== currentPlayerIndex).reduce((sum, card) => {
+                if (typeof card === 'number') {
                     return sum + card;
                 }
+                // 特殊カードはAIの計算では0として扱う（暫定）
                 return sum;
             }, 0);
-
-            // Simple AI: Bid slightly higher than current bid or a calculated safe bet
-            let bid = currentBid.value + 1;
-            const maxPossibleSum = visibleCardsSum + 10; // Assuming max card is 10
-            const minPossibleSum = visibleCardsSum + 0;  // Assuming min card is 0 (Coyote)
-
-            // AI will try to bid within a reasonable range or or challenge if bid is too high
-            if (currentBid.value >= maxPossibleSum - 2 && Math.random() < 0.7) { // High chance to challenge if close to max
-                handleCoyote();
-            } else if (bid < minPossibleSum + 2 && Math.random() < 0.5) { // Low bid, might bluff higher
-                 bid = Math.max(bid, minPossibleSum + Math.floor(Math.random() * 5) + 1);
-                 bidInput.value = bid;
-                 handleBid();
-            }
-            else {
-                // Bid a bit higher than current, but not too high
-                bid = Math.max(bid, currentBid.value + Math.floor(Math.random() * 3) + 1);
-                // Ensure bid doesn't exceed a very high, unlikely sum too much
-                if (bid > maxPossibleSum + 3) {
-                    bid = maxPossibleSum - 1; // Try to challenge instead
-                    if (bid <= currentBid.value) { // If still too low, just challenge
-                        handleCoyote();
-                        return;
-                    }
+            
+            let aiCardValue = 0;
+            if (typeof aiPlayer.currentCard === 'number') {
+                aiCardValue = aiPlayer.currentCard;
+            } else {
+                // AIにとっての特殊カードの価値をどう評価するか、ロジックを追加する必要があります。
+                // 現時点では、特殊カードはAIの合計値計算では0として扱われます。
+                if (aiPlayer.currentCard === '0_夜') {
+                    aiCardValue = 0;
                 }
+                // '×2', 'MAX→0', '？' はAIの合計値計算には直接影響しないため、0として扱う
+            }
+
+            let potentialSum = visibleCardsSum + aiCardValue;
+
+            // Simple AI:
+            // 1. If current bid is 0, make a conservative bid (e.g., sum of visible cards + a small random number)
+            // 2. If current bid is higher than what AI thinks is possible, challenge (coyote)
+            // 3. Otherwise, raise the bid slightly
+            if (currentBid.value === 0) {
+                // First bid, be conservative but not too low
+                const bid = Math.max(1, Math.floor(potentialSum * 0.7) + Math.floor(Math.random() * 3));
+                bidInput.value = bid;
+                handleBid();
+            } else if (currentBid.value >= potentialSum) {
+                // If current bid is too high, challenge
+                handleCoyote();
+            } else {
+                // Otherwise, raise the bid
+                const minBid = currentBid.value + 1;
+                const maxBid = potentialSum + Math.floor(Math.random() * 5); // Allow some bluffing
+                const bid = Math.min(Math.max(minBid, Math.floor(Math.random() * (maxBid - minBid + 1)) + minBid), 99); // Ensure bid is within reasonable range and not too high
                 bidInput.value = bid;
                 handleBid();
             }
         }
 
-        // Check if game has ended
-        function checkGameEnd() {
-            const activePlayers = players.filter(p => !p.isEliminated);
-            if (activePlayers.length <= 1) {
-                isGameStarted = false;
-                isRoundActive = false;
-                if (activePlayers.length === 1) {
-                    updateMessageBox(`${activePlayers[0].name} が勝利しました！おめでとうございます！`, 'success');
-                    addLogEntry(`${activePlayers[0].name} が勝利しました！おめでとうございます！`, 'success');
-                } else {
-                    updateMessageBox('全員脱落しました。引き分けです！', 'info');
-                    addLogEntry('全員脱落しました。引き分けです！', 'info');
-                }
-                bidInput.disabled = true;
-                raiseBidBtn.disabled = true;
-                coyoteBtn.disabled = true;
-                prevBidBtn.disabled = true; // Disable new buttons
-                nextBidBtn.disabled = true; // Disable new buttons
-            } else {
-                setTimeout(startRound, 2000);
+        // Bid Input Navigation (Prev/Next buttons)
+        function navigateBid(direction) {
+            let currentVal = parseInt(bidInput.value);
+            if (isNaN(currentVal)) {
+                currentVal = currentBid.value; // Start from current bid if input is empty
+            }
+
+            if (direction === 'prev') {
+                bidInput.value = Math.max(currentBid.value + 1, currentVal - 1);
+            } else if (direction === 'next') {
+                bidInput.value = currentVal + 1;
             }
         }
 
+        // Modal functions
+        function showCardCompositionModal() {
+            cardCompositionModal.classList.remove('hidden');
+            renderAvailableCards(); // Render cards when modal is shown
+        }
+
+        function hideCardCompositionModal() {
+            cardCompositionModal.classList.add('hidden');
+        }
+
         // Event Listeners
-        raiseBidBtn.addEventListener('click', handleBid);
-        coyoteBtn.addEventListener('click', handleCoyote);
+        document.addEventListener('DOMContentLoaded', () => {
+            raiseBidBtn.addEventListener('click', handleBid);
+            coyoteBtn.addEventListener('click', handleCoyote);
+            prevBidBtn.addEventListener('click', () => navigateBid('prev')); // Event for prev button
+            nextBidBtn.addEventListener('click', () => navigateBid('next')); // Event for next button
+            bidInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleBid();
+                }
+            });
 
-        // Event listeners for new bid adjustment buttons
-        prevBidBtn.addEventListener('click', () => {
-            let currentVal = parseInt(bidInput.value);
-            // Ensure bid doesn't go below the minimum valid bid (currentBid.value + 1)
-            if (isNaN(currentVal) || currentVal <= currentBid.value + 1) {
-                bidInput.value = currentBid.value + 1;
-            } else {
-                bidInput.value = currentVal - 1;
-            }
-        });
+            // Next Round button event listener
+            nextRoundBtn.addEventListener('click', () => {
+                if (players.filter(p => !p.isEliminated).length > 1) {
+                    startRound();
+                } else {
+                    // ゲームオーバーの場合は新しいゲームを促す
+                    updateMessageBox('ゲームは終了しました。新しいゲームを開始してください。', 'info');
+                }
+            });
 
-        nextBidBtn.addEventListener('click', () => {
-            let currentVal = parseInt(bidInput.value);
-            if (isNaN(currentVal)) {
-                bidInput.value = currentBid.value + 1; // Start from minimum valid bid if input is empty
-            } else {
-                bidInput.value = currentVal + 1;
-            }
-        });
+            // Card Composition button event listener
+            showCardCompositionBtn.addEventListener('click', showCardCompositionModal);
 
-        // Initial render (empty state) and game start
-        window.onload = () => {
-            renderPlayers();
-            renderAvailableCards(); // Initial render of the available cards deck
-            updateMessageBox('ゲーム開始！');
-            addLogEntry('アプリケーションがロードされました。', 'info');
-            bidInput.disabled = true;
-            raiseBidBtn.disabled = true;
-            coyoteBtn.disabled = true;
-            prevBidBtn.disabled = true; // Initial disable
-            nextBidBtn.disabled = true; // Initial disable
-            // Automatically start the game on load
+            // Close modal button and overlay click listener
+            closeModalBtn.addEventListener('click', hideCardCompositionModal);
+            cardCompositionModal.addEventListener('click', (e) => {
+                if (e.target === cardCompositionModal) { // Only close if clicking the overlay, not the content
+                    hideCardCompositionModal();
+                }
+            });
+
+            // 最初にゲームを開始
             startGame();
-        };
+        });
     </script>
 </body>
 </html>
