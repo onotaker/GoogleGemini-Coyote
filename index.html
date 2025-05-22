@@ -30,12 +30,12 @@
         #mainLayout {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 0.4rem; /* Adjusted gap */
             width: 100%;
             max-width: 390px; /* iPhone 14 Pro width */
             /* height will be set by JS to window.innerHeight */
             margin: 0; /* Centered by body's flex properties */
-            padding: 0.25rem 0.25rem 0 0.25rem; /* Original padding: top, right, bottom (0), left */
+            padding: 0.4rem 0.4rem 0 0.4rem; /* Adjusted padding */
             box-sizing: border-box;
         }
         .game-container, .log-container { /* Unified card styling */
@@ -43,12 +43,12 @@
             border-radius: 0.75rem; /* rounded-xl */
             /* 影を強調 */
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.08);
-            padding: 0.25rem;
+            padding: 0.4rem; /* Adjusted padding */
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.4rem; /* Adjusted gap */
         }
         #gameContainer {
             width: 100%; /* Fill width of mainLayout */
@@ -69,9 +69,9 @@
 
         /* ボタンの強化 */
         .btn {
-            padding: 0.6rem 1.2rem; /* 少し大きめのパディング */
-            font-size: 0.9rem; /* 少し大きめのフォント */
-            border-radius: 0.5rem; /* より丸く */
+            padding: 0.7rem 1.4rem; /* Adjusted padding */
+            font-size: 1rem; /* Adjusted font size */
+            border-radius: 0.6rem; /* Adjusted border-radius */
             font-weight: 700; /* 太字 */
             transition: all 0.3s ease-in-out; /* 滑らかなトランジション */
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* 影を強調 */
@@ -111,15 +111,16 @@
         }
         /* Increased size for player card */
         .player-card {
-            width: 90px; /* Increased from 60px */
-            height: 120px; /* Increased from 80px */
+            width: 95px; /* Adjusted from 110px */
+            height: 125px; /* Adjusted from 140px */
             /* カードの裏面をグラデーションに */
             background: linear-gradient(135deg, #073B4C 0%, #118AB2 100%); /* ダークブルーからブルーへのグラデーション */
             border-radius: 0.25rem;
             display: flex;
+            flex-direction: column; /* Added to stack text if needed */
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem; /* Increased from 1rem */
+            font-size: 1.55rem; /* Adjusted from 1.6rem */
             font-weight: bold;
             color: white;
             border: 2px solid; /* 少し太いボーダー */
@@ -127,6 +128,9 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* 影を強調 */
             transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* テキストに影 */
+            text-align: center; /* Center text within card */
+            line-height: 1.2; /* Adjust line height for multi-line text */
+            padding: 0.3rem; /* Adjusted padding */
         }
         .player-card.revealed {
             /* 公開されたカードをグラデーションに */
@@ -136,15 +140,31 @@
             text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3); /* 明るいテキストに影 */
         }
         .player-card .card-value {
-            white-space: nowrap;
+            white-space: normal; /* Allow text to wrap */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%; /* Ensure content fills card height */
         }
+        .player-card .card-value-large {
+            font-size: 1.3rem; /* Adjusted from 1.4rem */
+            line-height: 1;
+        }
+        .player-card .card-value-small {
+            font-size: 0.8rem; /* Adjusted from 0.9rem */
+            line-height: 1;
+            font-weight: normal; /* Make description less bold */
+            padding-top: 0.2rem; /* Small padding between lines */
+        }
+
         /* Increased size for player area elements */
         .player-area {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.1rem; /* Increased from 0.05rem */
-            padding: 0.1rem; /* Increased from 0.05rem */
+            gap: 0.15rem; /* Adjusted from 0.3rem */
+            padding: 0.15rem; /* Adjusted from 0.3rem */
             border-radius: 0.15rem;
             transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
@@ -164,29 +184,33 @@
         }
 
         .player-area h3 {
-            font-size: 0.75rem; /* Increased from 0.5rem */
+            font-size: 0.95rem; /* Increased from 0.85rem */
             font-weight: 600;
             color: #073B4C;
             margin-bottom: 0;
             line-height: 1;
         }
         .player-area p {
-            font-size: 0.75rem; /* Increased from 0.5rem */
+            font-size: 0.75rem; /* Smaller font size for hearts */
             line-height: 1;
+            display: flex; /* Make hearts horizontal */
+            justify-content: center; /* Center hearts */
+            gap: 0.1rem; /* Small gap between hearts */
+            margin-top: 0.05rem; /* Add a small margin to separate from name */
         }
         .message-box {
             /* ゲーム進行の説明は削除されたため、エラーや成功メッセージのみに利用 */
             background-color: #FFFFFF; /* デフォルトは白 */
             border: 0.25px solid #E2E8F0; /* 薄いグレーのボーダー */
             color: #073B4C; /* ダークブルーのテキスト */
-            padding: 0.15rem 0.3rem;
+            padding: 0.2rem 0.4rem; /* Adjusted padding */
             border-radius: 0.15rem;
-            margin-top: 0.1rem;
-            margin-bottom: 0.1rem;
+            margin-top: 0.15rem; /* Adjusted margin */
+            margin-bottom: 0.15rem; /* Adjusted margin */
             width: 100%;
             text-align: center;
             font-weight: 500;
-            font-size: 0.5rem;
+            font-size: 0.55rem; /* Adjusted font size */
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         .message-box.bg-red-100 { /* エラーメッセージ用 */
@@ -206,12 +230,12 @@
             border: 1.5px solid #118AB2;
         }
         .card-deck-item {
-            height: 45px;
+            height: 48px; /* Adjusted height */
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 0.1rem;
-            font-size: 0.8rem;
+            font-size: 0.85rem; /* Adjusted font size */
             font-weight: bold;
             border: 0.1px solid;
             transition: all 0.3s ease;
@@ -239,24 +263,24 @@
 
         /* 華やかなコヨーテゲームタイトル */
         #gameContainer h1 {
-            font-size: 1.6rem; /* 0.8rem の2倍 */
+            font-size: 1.7rem; /* Adjusted from 1.8rem */
             color: transparent; /* テキストを透明にしてグラデーションを表示 */
             background: linear-gradient(90deg, #FF6B6B, #FFD166, #06D6A0, #118AB2); /* 虹色グラデーション */
             -webkit-background-clip: text; /* 背景をテキストにクリップ */
             background-clip: text;
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4); /* 強い影 */
-            margin-bottom: 0.1rem;
+            margin-bottom: 0.15rem; /* Adjusted margin */
             font-weight: 900; /* Extra bold */
             letter-spacing: 0.05em; /* 文字間隔を少し広げる */
         }
 
         /* Round Display - Cloud style enhancement */
         #roundDisplay {
-            font-size: 1.2rem; /* 全体のフォントサイズを大きく */
+            font-size: 1.25rem; /* Adjusted from 1.3rem */
             color: #073B4C; /* Dark blue text for contrast */
-            margin-bottom: 0.5rem; /* Increased margin for visual separation */
+            margin-bottom: 0.6rem; /* Adjusted margin for visual separation */
             background-color: #E0F7FA; /* Light blue, cloud-like background */
-            padding: 0.5rem 1.2rem; /* パディングを増やす */
+            padding: 0.55rem 1.3rem; /* Adjusted padding */
             border-radius: 9999px; /* Fully rounded for a cloud effect */
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* 影を強調 */
             display: inline-block; /* To make padding and border-radius apply correctly */
@@ -292,7 +316,7 @@
 
         /* ゲームログのタイトルをコヨーテゲームのタイトルと同じスタイルに */
         #logDisplay h2 {
-            font-size: 1.6rem; /* h1と同じサイズ */
+            font-size: 1.7rem; /* Adjusted from 1.8rem */
             font-weight: 900; /* h1と同じ太さ */
             letter-spacing: 0.05em; /* h1と同じ文字間隔 */
             color: transparent; /* テキストを透明にしてグラデーションを表示 */
@@ -300,14 +324,14 @@
             -webkit-background-clip: text; /* 背景をテキストにクリップ */
             background-clip: text;
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4); /* h1と同じ影 */
-            margin-bottom: 0.1rem; /* 既存の余白を維持 */
+            margin-bottom: 0.2rem; /* Adjusted margin */
             text-align: center; /* 既存の配置を維持 */
         }
         /* カード構成のタイトルは小さく維持 */
         .card-composition-section h2 {
-            font-size: 0.6rem;
+            font-size: 0.65rem; /* Adjusted from 0.7rem */
             color: #073B4C;
-            margin-bottom: 0.1rem;
+            margin-bottom: 0.15rem; /* Adjusted margin */
             text-align: center;
             font-weight: 600; /* デフォルトの太さに戻す */
             letter-spacing: normal; /* デフォルトの文字間隔に戻す */
@@ -320,17 +344,16 @@
 
         /* --- Control Row Sizing --- */
         .control-row-width {
-            /* Sum of new fixed widths + 3 gaps of 0.2rem (3 * 3.2px = 9.6px) */
-            /* Input (120) + Arrow (80) + Arrow (80) + Declare (120) + Gaps */
-            width: calc(120px + 80px + 80px + 120px + 3 * 0.2rem);
+            /* Input (125) + Arrow (85) + Arrow (85) + Declare (125) + Gaps (3 * 0.3rem) */
+            width: calc(125px + 85px + 85px + 125px + 3 * 0.3rem); /* Adjusted widths and gaps */
             max-width: 100%; /* Ensure it doesn't overflow if screen is too small */
         }
 
         #bidInput {
-            width: 120px; /* Increased width */
-            height: 2.5rem; /* Increased height */
-            padding: 0.2rem; /* Adjusted padding */
-            font-size: 1rem; /* Increased font size */
+            width: 125px; /* Adjusted width */
+            height: 2.75rem; /* Adjusted height */
+            padding: 0.25rem; /* Adjusted padding */
+            font-size: 1.05rem; /* Adjusted font size */
             box-sizing: border-box;
             text-align: center;
             border: 1px solid #CBD5E0; /* Slightly thicker border */
@@ -342,28 +365,28 @@
             box-shadow: 0 0 0 2px rgba(17, 138, 178, 0.25); /* Larger focus ring */
         }
 
-        #prevBidBtn, #nextBidValueBtn { /* nextBidBtnをnextBidValueBtnに変更 */
-            width: 80px; /* Increased width */
-            padding: 0.2rem; /* Adjusted padding */
-            font-size: 1rem; /* Increased font size */
-            height: 2.5rem; /* Consistent height */
+        #prevBidBtn, #nextBidValueBtn { 
+            width: 85px; /* Adjusted width */
+            padding: 0.25rem; /* Adjusted padding */
+            font-size: 1.05rem; /* Adjusted font size */
+            height: 2.75rem; /* Consistent height */
             box-sizing: border-box;
         }
 
         #raiseBidBtn {
-            width: 120px; /* Increased width */
-            padding: 0.2rem; /* Adjusted padding */
-            font-size: 1rem; /* Increased font size */
-            height: 2.5rem; /* Consistent height */
+            width: 125px; /* Adjusted width */
+            padding: 0.25rem; /* Adjusted padding */
+            font-size: 1.05rem; /* Adjusted font size */
+            height: 2.75rem; /* Consistent height */
             box-sizing: border-box;
         }
 
         #gameControls {
             display: flex;
             flex-direction: column;
-            gap: 0.2rem; /* Increased gap between rows */
+            gap: 0.3rem; /* Adjusted gap between rows */
             width: 100%;
-            margin-top: 0.2rem; /* Increased margin-top */
+            margin-top: 0.3rem; /* Adjusted margin-top */
             flex-shrink: 0;
             align-items: center;
         }
@@ -372,13 +395,13 @@
             display: flex;
             justify-content: center;
             align-items: stretch;
-            gap: 0.2rem; /* Increased gap within rows */
+            gap: 0.3rem; /* Adjusted gap within rows */
         }
         #coyoteBtn {
             width: 100%; /* Takes full width of its parent (.control-row-width) */
-            height: 2.5rem; /* Consistent height with the row above */
-            padding: 0.2rem;
-            font-size: 1rem; /* Increased font size */
+            height: 2.75rem; /* Consistent height with the row above */
+            padding: 0.25rem;
+            font-size: 1.05rem; /* Adjusted font size */
             box-sizing: border-box;
         }
         /* Ensure the parent div of coyoteBtn is full width */
@@ -391,26 +414,26 @@
         #playersArea {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 0.1rem;
+            gap: 0.15rem; /* Adjusted gap */
             width: 100%;
             justify-items: center;
             flex-shrink: 0;
-            margin-top: 0.1rem;
+            margin-top: 0.15rem; /* Adjusted margin */
         }
         .card-composition-section {
-            margin-top: 0.1rem;
+            margin-top: 0.15rem; /* Adjusted margin */
             flex-shrink: 0;
             width: 100%;
             text-align: center;
         }
         .card-composition-section h2 {
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             text-align: center;
         }
         #availableCardsArea {
             display: flex;
             flex-direction: column;
-            gap: 0.05rem;
+            gap: 0.1rem; /* Adjusted gap */
             justify-content: center;
             width: 100%;
         }
@@ -420,28 +443,28 @@
             flex-shrink: 0;
         }
         #logDisplay h2 {
-            font-size: 0.6rem;
-            margin-bottom: 0.1rem;
+            font-size: 0.65rem;
+            margin-bottom: 0.2rem; /* Adjusted margin */
             flex-shrink: 0;
             color: #073B4C;
         }
         .log-content-scrollable {
             overflow-y: auto;
             width: 100%;
-            height: 6.7rem;
+            height: 7.5rem; /* Adjusted height */
             border: 1px solid #E2E8F0;
             border-radius: 0.25rem;
-            padding: 0.1rem;
+            padding: 0.2rem; /* Adjusted padding */
         }
         #logContent {
-            font-size: 0.7rem;
-            line-height: 1.2;
+            font-size: 0.85rem; /* Adjusted font size */
+            line-height: 1.35; /* Adjusted line height */
             display: flex;
             flex-direction: column;
-            gap: 0.1rem;
+            gap: 0.2rem; /* Adjusted gap */
         }
         #logContent p {
-            padding: 0.05rem 0.1rem;
+            padding: 0.1rem 0.2rem; /* Adjusted padding */
             border-radius: 0.1rem;
         }
 
@@ -458,36 +481,36 @@
             align-items: center;
             z-index: 1000;
             backdrop-filter: blur(3px);
-            padding: 0.5rem;
+            padding: 0.7rem; /* Adjusted padding */
         }
         .modal-content {
             background-color: #FFFFFF;
             border-radius: 0.75rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.1);
-            padding: 0.75rem;
+            padding: 1rem; /* Adjusted padding */
             width: 100%;
             max-width: 360px;
-            max-height: calc(100% - 1rem);
+            max-height: calc(100% - 1.4rem); /* Adjusted for new padding */
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 0.4rem; /* Adjusted gap */
             position: relative;
         }
         .modal-content h2 {
-            font-size: 0.8rem;
+            font-size: 0.9rem; /* Adjusted font size */
             font-weight: 700;
             text-align: center;
             color: #073B4C;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.3rem; /* Adjusted margin */
         }
         .modal-close-btn {
             position: absolute;
-            top: 0.25rem;
-            right: 0.25rem;
+            top: 0.35rem; /* Adjusted position */
+            right: 0.35rem; /* Adjusted position */
             background: transparent;
             border: none;
-            font-size: 1rem;
+            font-size: 1.1rem; /* Adjusted font size */
             font-weight: bold;
             line-height: 1;
             padding: 0.2rem;
@@ -502,30 +525,30 @@
         #modalAvailableCardsArea {
             display: flex;
             flex-direction: column;
-            gap: 0.05rem;
+            gap: 0.1rem; /* Adjusted gap */
             justify-content: center;
             width: 100%;
         }
         #modalAvailableCardsArea .flex.flex-row {
-            gap: 0.05rem !important;
+            gap: 0.1rem !important; /* Adjusted gap */
         }
 
         #bottomButtons {
             display: flex;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.7rem; /* Adjusted gap */
             width: 100%;
             margin-top: auto;
-            padding-top: 0.25rem;
+            padding-top: 0.35rem; /* Adjusted padding */
             flex-shrink: 0;
         }
         /* Adjusted for 2x size */
         #bottomButtons .btn {
             flex-grow: 1;
-            width: calc(50% - 0.25rem);
+            width: calc(50% - 0.35rem); /* Adjusted width for new gap */
             max-width: 360px;
-            height: 3.5rem; /* 少し小さく */
-            font-size: 1.2rem; /* 少し小さく */
+            height: 4rem; /* Adjusted height */
+            font-size: 1.3rem; /* Adjusted font size */
             border-radius: 0.75rem; /* より丸く */
         }
     </style>
@@ -619,7 +642,7 @@
         const raiseBidBtn = document.getElementById('raiseBidBtn');
         const coyoteBtn = document.getElementById('coyoteBtn');
         const prevBidBtn = document.getElementById('prevBidBtn');
-        const nextBidValueBtn = document.getElementById('nextBidValueBtn'); // IDをnextBidValueBtnに変更
+        const nextBidValueBtn = document.getElementById('nextBidValueBtn'); 
         const nextRoundBtn = document.getElementById('nextRoundBtn'); 
         const playAgainBtn = document.getElementById('playAgainBtn'); 
         const currentRoundNumberDisplay = document.getElementById('currentRoundNumber');
@@ -680,7 +703,7 @@
                     <h3>${player.name}</h3>
                     <p>ライフ: ${livesHtml}</p>
                     <div class="player-card">
-                        <span class="card-value">?</span>
+                        <span class="card-value"></span>
                     </div>`;
                 playersArea.appendChild(playerDiv);
 
@@ -688,24 +711,34 @@
                 const cardValueElement = cardElement.querySelector('.card-value');
 
                 if (isRoundActive && player.id === userPlayerId) {
-                    cardValueElement.textContent = '?';
+                    cardValueElement.innerHTML = '?'; // ユーザーのカードは常に？
                     cardElement.classList.add('hidden-card-back');
                     cardElement.classList.remove('revealed');
                 } else if (player.currentCard !== null) {
-                    cardValueElement.textContent = formatCardDisplay(player.currentCard);
+                    // プレイヤーカード用にHTMLを生成
+                    cardValueElement.innerHTML = formatCardDisplay(player.currentCard, true); 
                     cardElement.classList.add('revealed');
                     cardElement.classList.remove('hidden-card-back');
                 } else {
-                    cardValueElement.textContent = '?';
+                    cardValueElement.innerHTML = '?';
                     cardElement.classList.add('hidden-card-back');
                     cardElement.classList.remove('revealed');
                 }
             });
         }
 
-        function formatCardDisplay(cardValue) {
-            if (cardValue === '0_夜') return '0(夜)';
-            if (cardValue === 'MAX→0') return 'M→0';
+        function formatCardDisplay(cardValue, isForPlayerCard = false) {
+            if (isForPlayerCard) {
+                if (cardValue === '0_夜') return '<span class="card-value-large">夜(0)</span><span class="card-value-small">合計0</span>';
+                if (cardValue === 'MAX→0') return '<span class="card-value-large">キツネ(MAX→0)</span><span class="card-value-small">最大値0</span>';
+                if (cardValue === '×2') return '<span class="card-value-large">酋長(×2)</span><span class="card-value-small">合計倍</span>';
+                if (cardValue === '？') return '<span class="card-value-large">ほらあな(？)</span><span class="card-value-small">山札から</span>';
+            }
+            // ログやモーダルなど、プレイヤーカード以外での表示
+            if (cardValue === '0_夜') return '夜カード(0)'; 
+            if (cardValue === 'MAX→0') return 'キツネカード(MAX→0)'; 
+            if (cardValue === '×2') return '酋長カード(×2)'; 
+            if (cardValue === '？') return 'ほらあなカード(？)'; 
             return cardValue;
         }
 
@@ -714,7 +747,8 @@
 
             // allDealtCardsHistory を使ってカウント
             const totalDealtCardCounts = {};
-            allDealtCardsHistory.forEach(card => {
+            // Fix: Changed allDealtCardCounts to allDealtCardsHistory
+            allDealtCardsHistory.forEach(card => { 
                 totalDealtCardCounts[card] = (totalDealtCardCounts[card] || 0) + 1;
             });
 
@@ -723,14 +757,14 @@
                 rowDiv.className = 'flex flex-row justify-center items-center w-full';
                 modalAvailableCardsArea.appendChild(rowDiv);
 
-                const itemWidth = `calc((100% - ${(cardType.count - 1) * 0.05}rem) / ${cardType.count})`;
+                const itemWidth = `calc((100% - ${(cardType.count - 1) * 0.1}rem) / ${cardType.count})`; // Adjusted gap for modal cards
 
                 for (let i = 0; i < cardType.count; i++) {
                     const cardValue = cardType.value;
                     const cardElement = document.createElement('div');
 
                     let isGrayed = false;
-                    // allDealtCardsHistory に含まれるカードをグレーアウト
+                    // allDealtCardCounts に含まれるカードをグレーアウト
                     if (totalDealtCardCounts[cardValue] && totalDealtCardCounts[cardValue] > 0) {
                         isGrayed = true;
                         totalDealtCardCounts[cardValue]--; // 表示に使用した分を減らす
@@ -738,8 +772,8 @@
 
                     cardElement.className = `card-deck-item ${isGrayed ? 'used' : 'bg-white text-palette-dark-blue border-palette-blue'}`;
                     cardElement.style.width = itemWidth;
-                    cardElement.style.margin = "0.025rem";
-                    cardElement.textContent = formatCardDisplay(cardValue);
+                    cardElement.style.margin = "0.05rem"; // Adjusted margin for modal cards
+                    cardElement.textContent = formatCardDisplay(cardValue, false); // Modal uses single line
                     rowDiv.appendChild(cardElement);
                 }
             });
@@ -780,7 +814,8 @@
                 }
                 return `<span class="log-number">${p1}</span>`;
             });
-            formattedMsg = formattedMsg.replace(/(×2|MAX→0|0\(夜\)|？|-10|-5)/g, '<span class="log-number">$1</span>');
+            // 特殊カードの表示名をログでも反映
+            formattedMsg = formattedMsg.replace(/(夜カード\(0\)|酋長カード\(×2\)|キツネカード\(MAX→0\)|ほらあなカード\(？\)|-10|-5)/g, '<span class="log-number">$1</span>');
 
             logEntry.innerHTML = formattedMsg;
 
@@ -844,10 +879,10 @@
                     shuffleDeck(tempDeck);
                     const revealedCardForQuestionMark = tempDeck[0];
                     actualCardsInPlay[questionCardIndex] = revealedCardForQuestionMark;
-                    addLogEntry(`「？」カードは「${formatCardDisplay(revealedCardForQuestionMark)}」になりました。`, "info");
+                    addLogEntry(`「ほらあなカード(？)」は「${formatCardDisplay(revealedCardForQuestionMark, false)}」になりました。`, "info");
                 } else {
                     actualCardsInPlay[questionCardIndex] = 0;
-                    addLogEntry("「？」カードは「0」になりました。(デッキ残なし)", "info");
+                    addLogEntry("「ほらあなカード(？)」は「0」になりました。(デッキ残なし)", "info");
                 }
             }
 
@@ -862,7 +897,7 @@
                     }
                 });
                 if (maxIndex !== -1) {
-                    addLogEntry(`「MAX→0」の効果で、最も大きい数字のカード「${actualCardsInPlay[maxIndex]}」が「0」になりました。`, "info");
+                    addLogEntry(`「キツネカード(MAX→0)」の効果で、最も大きい数字のカード「${actualCardsInPlay[maxIndex]}」が「0」になりました。`, "info");
                     actualCardsInPlay[maxIndex] = 0;
                 }
             }
@@ -876,7 +911,7 @@
             });
 
             if (actualCardsInPlay.some(c => c === '0_夜')) {
-                addLogEntry("「0(夜)」カードの効果で、場の合計は0になりました。", "info");
+                addLogEntry("「夜カード(0)」の効果で、場の合計は0になりました。", "info");
                 return 0; // Night card overrides everything
             }
 
@@ -947,7 +982,7 @@
                     const playerDiv = document.getElementById(player.id);
                     const cardElement = playerDiv.querySelector('.player-card');
                     const cardValueElement = cardElement.querySelector('.card-value');
-                    cardValueElement.textContent = formatCardDisplay(player.currentCard);
+                    cardValueElement.innerHTML = formatCardDisplay(player.currentCard, true); // プレイヤーカードはHTML表示
                     cardElement.classList.add('revealed');
                     cardElement.classList.remove('hidden-card-back');
                 }
@@ -980,7 +1015,7 @@
                 const userPlayer = players.find(p => p.id === userPlayerId);
                 const userIsEliminated = userPlayer && userPlayer.isEliminated;
 
-                if (gameOverForAll || userIsEliminated) { // ユーザーが脱落した場合も「もう一度プレイ」
+                if (gameOverForAll || userIsEliminated) { 
                     nextRoundBtn.classList.add('hidden'); 
                     playAgainBtn.classList.remove('hidden'); 
                 } else {
@@ -1109,7 +1144,7 @@
 
             bidInput.disabled = !isMyTurn;
             prevBidBtn.disabled = !isMyTurn;
-            nextBidValueBtn.disabled = !isMyTurn; // nextBidValueBtnを使用
+            nextBidValueBtn.disabled = !isMyTurn; 
 
             raiseBidBtn.disabled = !isMyTurn || isNaN(parseInt(bidInput.value)) || parseInt(bidInput.value) <= currentBid.value;
             coyoteBtn.disabled = !isMyTurn || currentBid.bidderIndex === -1;
@@ -1119,7 +1154,7 @@
                 raiseBidBtn.disabled = true;
                 coyoteBtn.disabled = true;
                 prevBidBtn.disabled = true;
-                nextBidValueBtn.disabled = true; // nextBidValueBtnを使用
+                nextBidValueBtn.disabled = true; 
             }
         }
 
@@ -1174,7 +1209,7 @@
             updateControls();
         });
 
-        nextBidValueBtn.addEventListener('click', () => { // nextBidValueBtnを使用
+        nextBidValueBtn.addEventListener('click', () => { 
             let currentVal = parseInt(bidInput.value) || 0;
             bidInput.value = currentVal + 1;
             updateControls();
