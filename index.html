@@ -145,23 +145,14 @@
             border-color: #FF6B6B; /* 赤いボーダー */
             text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3); /* 明るいテキストに影 */
         }
-        .player-card .card-value {
-            white-space: normal; /* Allow text to wrap */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%; /* Ensure content fills card height */
-        }
         .player-card .card-value-large {
             font-size: 1.3rem; /* Adjusted from 1.4rem */
             line-height: 1;
         }
-        .player-card .card-value-small {
-            font-size: 0.8rem; /* Adjusted from 0.9rem */
-            line-height: 1;
-            font-weight: normal; /* Make description less bold */
-            padding-top: 0.2rem; /* Small padding between lines */
+        .player-card .card-description-cue {
+            font-size: 0.65rem; /* Smaller font size for description cue */
+            margin-top: 0.2rem; /* Space from the main value */
+            font-weight: 600; /* Make it a bit bolder */
         }
 
         /* Increased size for player area elements */
@@ -528,16 +519,25 @@
         .modal-close-btn:hover {
             opacity: 1;
         }
-        #modalAvailableCardsArea {
-            display: flex;
-            flex-direction: column;
-            gap: 0.1rem; /* Adjusted gap */
-            justify-content: center;
-            width: 100%;
-        }
         #modalAvailableCardsArea .flex.flex-row {
             gap: 0.1rem !important; /* Adjusted gap */
         }
+        /* New modal for special card descriptions */
+        #specialCardDescriptionModal .modal-content {
+            max-width: 300px;
+            padding: 1.2rem;
+        }
+        #specialCardDescriptionModal h2 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        #specialCardDescriptionModal p {
+            font-size: 0.9rem;
+            text-align: center;
+            line-height: 1.4;
+            color: #333;
+        }
+
 
         #bottomButtons {
             display: flex;
@@ -547,11 +547,12 @@
             margin-top: auto;
             padding-top: 0.35rem; /* Adjusted padding */
             flex-shrink: 0;
+            flex-wrap: nowrap; /* Prevent wrapping */
         }
         /* Adjusted for 2x size */
         #bottomButtons .btn {
             flex-grow: 1;
-            width: calc(50% - 0.35rem); /* Adjusted width for new gap */
+            /* width: calc(50% - 0.35rem); */ /* Removed fixed width calculation */
             max-width: 360px;
             height: 4rem; /* Adjusted height */
             font-size: 1.3rem; /* Adjusted font size */
@@ -613,6 +614,14 @@
         </div>
     </div>
 
+    <div id="specialCardDescriptionModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="closeSpecialCardModalBtn">✖</button>
+            <h2 id="specialCardTitle"></h2>
+            <p id="specialCardDescription" class="text-gray-700"></p>
+        </div>
+    </div>
+
     <script>
         const players = [];
         let currentDealerIndex = 0;
@@ -641,6 +650,14 @@
             { value: '×2', count: 1 }, { value: 'MAX→0', count: 1 }, { value: '？', count: 1 }
         ];
 
+        // Full descriptions for special cards
+        const specialCardFullDescriptions = {
+            '0_夜': { title: '夜カード(0)', description: 'このラウンドで使用した全てのカードを捨て札にせず、山札に戻す' },
+            '×2': { title: '酋長カード(×2)', description: '全ての基本カード数字を倍にする' },
+            'MAX→0': { title: 'キツネカード(MAX→0)', description: 'このラウンドに出た最大のカードを数値を0にする' },
+            '？': { title: 'ほらあなカード(？)', description: '判定時に山札からカードを1枚引き、そのカードで計算を行う' }
+        };
+
         // DOM Elements
         const messageBox = document.getElementById('messageBox');
         const playersArea = document.getElementById('playersArea');
@@ -661,6 +678,12 @@
         const modalAvailableCardsArea = document.getElementById('modalAvailableCardsArea');
         const closeModalBtn = document.getElementById('closeModalBtn');
 
+        const specialCardDescriptionModal = document.getElementById('specialCardDescriptionModal');
+        const specialCardTitle = document.getElementById('specialCardTitle');
+        const specialCardDescription = document.getElementById('specialCardDescription');
+        const closeSpecialCardModalBtn = document.getElementById('closeSpecialCardModalBtn');
+
+
         // --- Dynamic Height Adjustment ---
         function setDynamicHeight() {
             const mainLayout = document.getElementById('mainLayout');
@@ -675,7 +698,9 @@
             for (let i = 0; i < numPlayers; i++) {
                 players.push({
                     id: `player${i}`, name: `プレイヤー${i + 1}`, lives: initialLives,
-                    currentCard: null, isEliminated: false
+                    currentCard: null, // This will hold the effective value after effects
+                    originalDealtCard: null, // This will hold the card initially dealt
+                    isEliminated: false
                 });
             }
             userPlayerId = players[0].id; // プレイヤー0をユーザーとして設定
@@ -709,38 +734,53 @@
                     <h3>${player.name}</h3>
                     <p>ライフ: ${livesHtml}</p>
                     <div class="player-card">
-                        <span class="card-value"></span>
+                        <span class="card-value-large"></span>
+                        <span class="card-description-cue text-blue-500 cursor-pointer hidden">カードの説明</span>
                     </div>`;
                 playersArea.appendChild(playerDiv);
 
                 const cardElement = playerDiv.querySelector('.player-card');
-                const cardValueElement = cardElement.querySelector('.card-value');
+                const cardValueLargeElement = cardElement.querySelector('.card-value-large');
+                const cardDescriptionCue = cardElement.querySelector('.card-description-cue');
+
 
                 if (isRoundActive && player.id === userPlayerId) {
-                    cardValueElement.innerHTML = '?'; // ユーザーのカードは常に？
+                    cardValueLargeElement.innerHTML = '?'; // ユーザーのカードは常に？
                     cardElement.classList.add('hidden-card-back');
                     cardElement.classList.remove('revealed');
+                    if (cardDescriptionCue) cardDescriptionCue.classList.add('hidden');
                 } else if (player.currentCard !== null) {
-                    // プレイヤーカード用にHTMLを生成
-                    cardValueElement.innerHTML = formatCardDisplay(player.currentCard, true); 
+                    // Display currentCard (which might be modified by effects)
+                    cardValueLargeElement.innerHTML = formatCardDisplay(player.currentCard, true); 
                     cardElement.classList.add('revealed');
                     cardElement.classList.remove('hidden-card-back');
+
+                    // Show/hide and set up description cue based on original dealt card
+                    if (cardDescriptionCue) {
+                        if (specialCardFullDescriptions.hasOwnProperty(player.originalDealtCard)) {
+                            cardDescriptionCue.classList.remove('hidden');
+                        } else {
+                            cardDescriptionCue.classList.add('hidden');
+                        }
+                    }
                 } else {
-                    cardValueElement.innerHTML = '?';
+                    cardValueLargeElement.innerHTML = '?';
                     cardElement.classList.add('hidden-card-back');
                     cardElement.classList.remove('revealed');
+                    if (cardDescriptionCue) cardDescriptionCue.classList.add('hidden');
                 }
             });
         }
 
         function formatCardDisplay(cardValue, isForPlayerCard = false) {
             if (isForPlayerCard) {
-                if (cardValue === '0_夜') return '<span class="card-value-large">夜(0)</span><span class="card-value-small">合計0</span>';
-                if (cardValue === 'MAX→0') return '<span class="card-value-large">キツネ(MAX→0)</span><span class="card-value-small">最大値0</span>';
-                if (cardValue === '×2') return '<span class="card-value-large">酋長(×2)</span><span class="card-value-small">合計倍</span>';
-                if (cardValue === '？') return '<span class="card-value-large">ほらあな(？)</span><span class="card-value-small">山札から</span>';
+                // For player cards, only show the large value/name, no small description
+                if (cardValue === '0_夜') return '夜(0)';
+                if (cardValue === 'MAX→0') return 'キツネ(MAX→0)';
+                if (cardValue === '×2') return '酋長(×2)';
+                if (cardValue === '？') return 'ほらあな(？)';
             }
-            // ログやモーダルなど、プレイヤーカード以外での表示
+            // For logs and modal, use the full name
             if (cardValue === '0_夜') return '夜カード(0)'; 
             if (cardValue === 'MAX→0') return 'キツネカード(MAX→0)'; 
             if (cardValue === '×2') return '酋長カード(×2)'; 
@@ -753,7 +793,6 @@
 
             // allDealtCardsHistory を使ってカウント
             const totalDealtCardCounts = {};
-            // Fix: Changed allDealtCardCounts to allDealtCardsHistory
             allDealtCardsHistory.forEach(card => { 
                 totalDealtCardCounts[card] = (totalDealtCardCounts[card] || 0) + 1;
             });
@@ -788,7 +827,8 @@
 
         function updateMessageBox(msg, type = 'info') {
             // ゲーム進行のinfoメッセージは表示しない
-            if (type === 'info') {
+            // 特に「プレイヤーが負けました！」のメッセージはゲームログにのみ表示する
+            if (type === 'info' || msg.includes('が負けました！')) {
                 messageBox.classList.add('hidden');
                 return;
             }
@@ -857,75 +897,95 @@
             activePlayers.forEach(player => {
                 if (availableDeck.length > 0) {
                     player.currentCard = availableDeck.pop();
+                    player.originalDealtCard = player.currentCard; // Store original for description
                     cardsInPlay.push(player.currentCard);
                     dealtCards.push(player.currentCard);
                 } else {
                     player.currentCard = null;
+                    player.originalDealtCard = null;
                     addLogEntry("エラー: デッキにカードがありません。", "error");
                 }
             });
             allDealtCardsHistory.push(...dealtCards); // 全てのラウンドのカード履歴に追加
         }
 
-        function calculateTotalSum() {
+        // Modified calculateTotalSum to update player.currentCard directly for special effects
+        function calculateTotalSum(activePlayers) {
             let sum = 0;
             let hasMultiplier = false;
-            let hasMaxToZero = false;
 
-            const actualCardsInPlay = players.filter(p => !p.isEliminated).map(p => p.currentCard);
-            const questionCardIndex = actualCardsInPlay.indexOf('？');
+            // Create a temporary array to hold effective card values for calculation
+            // This allows us to modify values for calculation without changing player.originalDealtCard
+            const effectiveCardsForCalculation = activePlayers.map(p => ({
+                player: p,
+                card: p.originalDealtCard // Start with original dealt card for calculation
+            }));
 
-            if (questionCardIndex !== -1) {
+            // 1. Resolve '？' cards first
+            const questionEntry = effectiveCardsForCalculation.find(entry => entry.card === '？');
+            if (questionEntry) {
                 let tempDeck = [...initialCardDeck];
-                actualCardsInPlay.forEach(cardInHand => {
-                    const idx = tempDeck.indexOf(cardInHand);
+                // Remove all current original dealt cards from tempDeck
+                activePlayers.forEach(p => {
+                    const idx = tempDeck.indexOf(p.originalDealtCard);
                     if (idx > -1) tempDeck.splice(idx, 1);
                 });
+
                 if (tempDeck.length > 0) {
                     shuffleDeck(tempDeck);
                     const revealedCardForQuestionMark = tempDeck[0];
-                    actualCardsInPlay[questionCardIndex] = revealedCardForQuestionMark;
+                    questionEntry.card = revealedCardForQuestionMark; // Update effective card for calculation
+                    questionEntry.player.currentCard = revealedCardForQuestionMark; // Update player's currentCard for display
                     addLogEntry(`「ほらあなカード(？)」は「${formatCardDisplay(revealedCardForQuestionMark, false)}」になりました。`, "info");
                 } else {
-                    actualCardsInPlay[questionCardIndex] = 0;
+                    questionEntry.card = 0; // Update effective card for calculation
+                    questionEntry.player.currentCard = 0; // Update player's currentCard for display
                     addLogEntry("「ほらあなカード(？)」は「0」になりました。(デッキ残なし)", "info");
                 }
             }
 
-            if (actualCardsInPlay.includes('MAX→0')) {
-                hasMaxToZero = true;
+            // 2. Apply 'MAX→0' effect
+            const foxEntry = effectiveCardsForCalculation.find(entry => entry.card === 'MAX→0');
+            if (foxEntry) {
                 let maxValue = -Infinity;
-                let maxIndex = -1;
-                actualCardsInPlay.forEach((card, index) => {
-                    if (typeof card === 'number' && card > maxValue) {
-                        maxValue = card;
-                        maxIndex = index;
+                let maxCardEntry = null; // Entry that holds the max card
+
+                effectiveCardsForCalculation.forEach(entry => {
+                    if (typeof entry.card === 'number' && entry.card > maxValue) {
+                        maxValue = entry.card;
+                        maxCardEntry = entry;
                     }
                 });
-                if (maxIndex !== -1) {
-                    addLogEntry(`「キツネカード(MAX→0)」の効果で、最も大きい数字のカード「${actualCardsInPlay[maxIndex]}」が「0」になりました。`, "info");
-                    actualCardsInPlay[maxIndex] = 0;
+
+                if (maxCardEntry && typeof maxCardEntry.card === 'number') {
+                    addLogEntry(`「キツネカード(MAX→0)」の効果で、最も大きい数字のカード「${maxCardEntry.card}」が「0」になりました。`, "info");
+                    maxCardEntry.card = 0; // Update effective card for calculation
+                    maxCardEntry.player.currentCard = 0; // Update player's currentCard for display
                 }
             }
 
-            actualCardsInPlay.forEach(card => {
-                if (typeof card === 'number') {
-                    sum += card;
-                } else if (card === '×2') {
+            // 3. Calculate sum based on potentially modified effective card values
+            effectiveCardsForCalculation.forEach(entry => {
+                if (typeof entry.card === 'number') {
+                    sum += entry.card;
+                } else if (entry.card === '×2') {
                     hasMultiplier = true;
                 }
             });
 
-            if (actualCardsInPlay.some(c => c === '0_夜')) {
+            // 4. Apply '0_夜' effect
+            if (effectiveCardsForCalculation.some(entry => entry.card === '0_夜')) {
                 addLogEntry("「夜カード(0)」の効果で、場の合計は0になりました。", "info");
                 return 0; // Night card overrides everything
             }
 
+            // 5. Apply '×2' effect
             if (hasMultiplier) {
+                addLogEntry("「酋長カード(×2)」の効果で、場の合計が2倍になりました。", "info");
                 sum *= 2;
             }
 
-            return Math.round(sum); // Return a rounded estimate
+            return Math.round(sum);
         }
 
         function startNewRound() {
@@ -976,32 +1036,44 @@
             isRoundActive = false;
             updateControls(); 
 
-            const totalSum = calculateTotalSum();
-            const caller = players.filter(p => !p.isEliminated)[currentPlayerIndex];
-            const lastBidder = players.filter(p => !p.isEliminated)[currentBid.bidderIndex];
+            const activePlayers = players.filter(p => !p.isEliminated);
+            const totalSum = calculateTotalSum(activePlayers); // Pass activePlayers to modify currentCard directly
+
+            const caller = activePlayers[currentPlayerIndex];
+            const lastBidder = activePlayers[currentBid.bidderIndex];
 
             addLogEntry(`${caller.name}が「コヨーテ！」と宣言しました！`, "info");
             addLogEntry(`場の合計は ${totalSum} です。最後の宣言は ${currentBid.value} でした。`, "info");
 
-            players.forEach(player => {
-                if (!player.isEliminated) {
-                    const playerDiv = document.getElementById(player.id);
-                    const cardElement = playerDiv.querySelector('.player-card');
-                    const cardValueElement = cardElement.querySelector('.card-value');
-                    cardValueElement.innerHTML = formatCardDisplay(player.currentCard, true); // プレイヤーカードはHTML表示
-                    cardElement.classList.add('revealed');
-                    cardElement.classList.remove('hidden-card-back');
+            // Now, player.currentCard holds the effective value, so just display it
+            activePlayers.forEach(player => {
+                const playerDiv = document.getElementById(player.id);
+                const cardElement = playerDiv.querySelector('.player-card');
+                const cardValueLargeElement = cardElement.querySelector('.card-value-large');
+                const cardDescriptionCue = cardElement.querySelector('.card-description-cue');
+
+                cardValueLargeElement.innerHTML = formatCardDisplay(player.currentCard, true); // Use the modified player.currentCard
+                cardElement.classList.add('revealed');
+                cardElement.classList.remove('hidden-card-back');
+
+                // Ensure description cue is visible for special cards after reveal
+                if (cardDescriptionCue) {
+                    if (specialCardFullDescriptions.hasOwnProperty(player.originalDealtCard)) {
+                        cardDescriptionCue.classList.remove('hidden');
+                    } else {
+                        cardDescriptionCue.classList.add('hidden');
+                    }
                 }
             });
 
             let loser = null;
             if (totalSum > currentBid.value) {
                 loser = lastBidder;
-                updateMessageBox(`${lastBidder.name}が負けました！合計 (${totalSum}) は宣言 (${currentBid.value}) より大きいです。`, "error");
+                // Removed updateMessageBox for "player lost" messages
                 addLogEntry(`${lastBidder.name}が負けました！合計 (${totalSum}) は宣言 (${currentBid.value}) より大きいです。`, "error");
             } else {
                 loser = caller;
-                updateMessageBox(`${caller.name}が負けました！合計 (${totalSum}) は宣言 (${currentBid.value}) 以下です。`, "error");
+                // Removed updateMessageBox for "player lost" messages
                 addLogEntry(`${caller.name}が負けました！合計 (${totalSum}) は宣言 (${currentBid.value}) 以下です。`, "error");
             }
 
@@ -1032,7 +1104,7 @@
             }, 2000);
             
 
-            const activePlayers = players.filter(p => !p.isEliminated);
+            const activePlayersAfterElimination = players.filter(p => !p.isEliminated);
             if (loser && !loser.isEliminated) {
                 currentDealerIndex = players.indexOf(loser);
             } else if (loser && loser.isEliminated) {
@@ -1046,9 +1118,9 @@
                         break;
                     }
                 }
-                if (!nextDealerFound && activePlayers.length > 0) {
-                    currentDealerIndex = players.indexOf(activePlayers[0]);
-                } else if (activePlayers.length === 0) {
+                if (!nextDealerFound && activePlayersAfterElimination.length > 0) {
+                    currentDealerIndex = players.indexOf(activePlayersAfterElimination[0]);
+                } else if (activePlayersAfterElimination.length === 0) {
                     currentDealerIndex = 0;
                 }
             } else {
@@ -1200,6 +1272,40 @@
         closeModalBtn.addEventListener('click', () => {
             cardCompositionModal.classList.add('hidden');
         });
+
+        // Event delegation for player card clicks and description cue clicks
+        playersArea.addEventListener('click', (event) => {
+            let targetElement = event.target;
+            let targetCard = targetElement.closest('.player-card.revealed');
+            let targetDescriptionCue = targetElement.closest('.card-description-cue');
+
+            if (targetDescriptionCue) {
+                targetCard = targetDescriptionCue.closest('.player-card.revealed'); // Ensure we get the parent card
+            }
+
+            if (targetCard) {
+                let playerDiv = targetCard.closest('.player-area');
+                if (playerDiv) {
+                    let playerId = playerDiv.id;
+                    let clickedPlayer = players.find(p => p.id === playerId);
+
+                    // If the description cue was clicked, or if the card itself was clicked and it's a special card
+                    if (targetDescriptionCue || (targetCard && specialCardFullDescriptions.hasOwnProperty(clickedPlayer.originalDealtCard))) {
+                        if (clickedPlayer && specialCardFullDescriptions.hasOwnProperty(clickedPlayer.originalDealtCard)) {
+                            const cardInfo = specialCardFullDescriptions[clickedPlayer.originalDealtCard];
+                            specialCardTitle.textContent = cardInfo.title;
+                            specialCardDescription.textContent = cardInfo.description;
+                            specialCardDescriptionModal.classList.remove('hidden');
+                        }
+                    }
+                }
+            }
+        });
+
+        closeSpecialCardModalBtn.addEventListener('click', () => {
+            specialCardDescriptionModal.classList.add('hidden');
+        });
+
 
         bidInput.addEventListener('input', () => {
             updateControls();
