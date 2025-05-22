@@ -192,11 +192,40 @@
             color: #073B4C;
             margin-bottom: 0.1rem;
         }
+        /* Round Display - Cloud style */
         #roundDisplay {
             font-size: 0.6rem; /* Reduced from xl for mobile */
-            color: #118AB2;
-            margin-bottom: 0.1rem;
+            color: #073B4C; /* Dark blue text for contrast */
+            margin-bottom: 0.5rem; /* Increased margin for visual separation */
+            background-color: #E0F7FA; /* Light blue, cloud-like background */
+            padding: 0.3rem 0.8rem; /* Padding for the cloud shape */
+            border-radius: 9999px; /* Fully rounded for a cloud effect */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            display: inline-block; /* To make padding and border-radius apply correctly */
+            position: relative; /* For animation */
+            overflow: hidden; /* Hide parts of the cloud that move outside */
         }
+
+        /* Keyframes for cloud movement */
+        @keyframes cloudMove {
+            0% { transform: translateX(-10%); opacity: 0.8; }
+            50% { transform: translateX(10%); opacity: 1; }
+            100% { transform: translateX(-10%); opacity: 0.8; }
+        }
+
+        #roundDisplay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #E0F7FA, #B3E5FC); /* Gradient for more cloud-like effect */
+            border-radius: 9999px;
+            z-index: -1; /* Behind the text */
+            animation: cloudMove 8s infinite alternate ease-in-out; /* Apply animation */
+        }
+
         #gameContainer h2 { /* Applies to "カード構成" and "ゲームログ" titles */
             font-size: 0.6rem;
             color: #073B4C;
@@ -266,6 +295,12 @@
             font-size: 1rem; /* Increased font size */
             box-sizing: border-box;
         }
+        /* Ensure the parent div of coyoteBtn is full width */
+        #gameControls > div:last-child { /* This targets the div containing #coyoteBtn */
+            width: 100%; /* Make this div span full width */
+            max-width: 390px; /* Constrain to mainLayout's max-width */
+        }
+
 
         #playersArea {
             display: grid;
@@ -386,7 +421,7 @@
             width: 100%;
         }
         #modalAvailableCardsArea .flex.flex-row {
-             gap: 0.05rem !important;
+            gap: 0.05rem !important;
         }
 
         #bottomButtons {
@@ -398,12 +433,13 @@
             padding-top: 0.25rem;
             flex-shrink: 0;
         }
+        /* Adjusted for 2x size */
         #bottomButtons .btn {
             flex-grow: 1;
             width: calc(50% - 0.25rem);
-            max-width: 180px;
-            height: 2rem;
-            font-size: 0.7rem;
+            max-width: 360px; 
+            height: 4rem; 
+            font-size: 1.4rem; 
         }
     </style>
 </head>
@@ -427,7 +463,7 @@
                     <button id="nextBidBtn" class="btn btn-primary">→</button>
                     <button id="raiseBidBtn" class="btn btn-primary">宣言</button>
                 </div>
-                <div class="w-full control-row-width">
+                <div class="w-full"> 
                     <button id="coyoteBtn" class="btn btn-danger">コヨーテ！</button>
                 </div>
             </div>
@@ -751,10 +787,10 @@
             }
 
             if (hasMultiplier) {
-                addLogEntry("「×2」カードの効果で、合計が2倍になりました。", "info");
                 sum *= 2;
             }
-            return sum;
+
+            return Math.round(sum); // Return a rounded estimate
         }
 
         function startNewRound() {
@@ -829,191 +865,191 @@
             const lastBidder = players[currentBid.bidderIndex];
             const challenger = players[currentPlayerIndex];
 
-            if (totalSum === currentBid.value) { 
-                addLogEntry(`宣言 ${currentBid.value} は合計と一致！ ${challenger.name} がライフを失います。`, "success");
-                challenger.lives--;
-                updateMessageBox(`${challenger.name}の負け！合計は${totalSum}でした。`, "error");
-            } else if (totalSum > currentBid.value) { 
-                addLogEntry(`宣言 ${currentBid.value} は合計 ${totalSum} より小さい。 ${challenger.name} がライフを失います。`, "error");
-                challenger.lives--;
-                updateMessageBox(`${challenger.name}の負け！合計は${totalSum}でした。`, "error");
-            } else { 
-                addLogEntry(`宣言 ${currentBid.value} は合計 ${totalSum} より大きい。 ${lastBidder.name} がライフを失います。`, "success");
+            if (totalSum < currentBid.value) {
+                // Bid was too high, last bidder loses a life
+                addLogEntry(`宣言 ${currentBid.value} は合計 ${totalSum} より大きかったため、${lastBidder.name} がライフを失います。`, "error");
                 lastBidder.lives--;
-                updateMessageBox(`${lastBidder.name}の負け！合計は${totalSum}でした。`, "success");
-            }
-
-            checkPlayerElimination();
-            renderPlayers(); 
-            updateGameControls(); 
-
-            const activePlayers = players.filter(p => !p.isEliminated);
-            if (activePlayers.length <= 1) {
-                endGame();
-            } else {
-                nextRoundBtn.classList.remove('hidden');
-            }
-        }
-        
-        function checkPlayerElimination() {
-            players.forEach(player => {
-                if (player.lives <= 0 && !player.isEliminated) {
-                    player.isEliminated = true;
-                    addLogEntry(`${player.name} は脱落しました。`, "error");
-                    const cardIndex = cardsInPlay.indexOf(player.currentCard);
-                    if (cardIndex > -1) cardsInPlay.splice(cardIndex,1);
+                if (lastBidder.lives <= 0) {
+                    lastBidder.isEliminated = true;
+                    addLogEntry(`${lastBidder.name} は脱落しました。`, "error");
                 }
-            });
+            } else {
+                // Bid was correct or too low, challenger loses a life
+                addLogEntry(`宣言 ${currentBid.value} は合計 ${totalSum} 以下だったため、${challenger.name} がライフを失います。`, "error");
+                challenger.lives--;
+                if (challenger.lives <= 0) {
+                    challenger.isEliminated = true;
+                    addLogEntry(`${challenger.name} は脱落しました。`, "error");
+                }
+            }
+            
+            renderPlayers();
+            updateGameControls();
+            nextRoundBtn.classList.remove('hidden');
+            updateMessageBox("ラウンド終了。次のラウンドに進むか、カード構成を確認してください。", "success");
         }
 
         function moveToNextPlayer() {
+            let nextPlayer = -1;
+            let attempts = 0;
+            const maxAttempts = players.length * 2; // Prevent infinite loops
+
             do {
                 currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+                attempts++;
+                if (attempts > maxAttempts) {
+                    addLogEntry("エラー: 次のプレイヤーを見つけられませんでした。", "error");
+                    endGame(); // Or handle as a game-ending error
+                    return;
+                }
             } while (players[currentPlayerIndex].isEliminated);
-            
-            renderPlayers(); 
+
+            renderPlayers();
             updateGameControls();
-            bidInput.value = (currentBid.value > 0 ? currentBid.value : 0) + 1; 
-            updateMessageBox(`${players[currentPlayerIndex].name}のターンです。`, 'info');
+            updateMessageBox(`${players[currentPlayerIndex].name}のターンです。現在の宣言は ${currentBid.value} です。`, 'info');
 
-            if (currentPlayerIndex !== 0 && isRoundActive) { 
-                 setTimeout(aiAction, 1500); 
-            }
-        }
-        
-        function aiAction() {
-            if (!isRoundActive || players[currentPlayerIndex].isEliminated) return;
-
-            const aiPlayer = players[currentPlayerIndex];
-            const canCoyote = currentBid.bidderIndex !== -1;
-            
-            if (canCoyote && Math.random() < 0.3) { 
-                handleCoyote();
+            if (currentPlayerIndex !== 0) { // If it's an AI player's turn
+                setTimeout(aiAction, 1500);
             } else {
-                let aiBidValue = (currentBid.value === 0 && currentBid.bidderIndex === -1) ? 
-                                 Math.floor(Math.random() * 5) + 1 : 
-                                 currentBid.value + Math.floor(Math.random() * 3) + 1; 
-                
-                const maxPossibleSumRoughly = players.filter(p=>!p.isEliminated).length * 10; 
-                if (aiBidValue > maxPossibleSumRoughly) {
-                    aiBidValue = Math.max(currentBid.value + 1, Math.floor(maxPossibleSumRoughly * 0.75));
-                }
-                if (aiBidValue <= currentBid.value && currentBid.bidderIndex !== -1) {
-                    aiBidValue = currentBid.value + 1; 
-                }
-
-                currentBid = { value: aiBidValue, bidderIndex: currentPlayerIndex };
-                addLogEntry(`${aiPlayer.name} が ${aiBidValue} を宣言しました。`);
-                moveToNextPlayer(); 
+                // For human player, pre-fill bid input with a valid next bid
+                bidInput.value = currentBid.value + 1;
             }
         }
 
         function updateGameControls() {
-            const canBid = isRoundActive && currentPlayerIndex === 0; 
-            bidInput.disabled = !canBid;
-            raiseBidBtn.disabled = !canBid;
-            prevBidBtn.disabled = !canBid;
-            nextBidBtn.disabled = !canBid;
-            coyoteBtn.disabled = !isRoundActive || currentPlayerIndex !== 0 || currentBid.bidderIndex === -1;
+            const activePlayersCount = players.filter(p => !p.isEliminated).length;
+            const isHumanPlayerTurn = currentPlayerIndex === 0;
+            const isGameActive = isRoundActive && activePlayersCount > 1;
 
-            if (canBid) { 
-                bidInput.value = (currentBid.value > 0 ? currentBid.value : 0) + 1;
-            } else if (!isRoundActive) { 
-                bidInput.disabled = true;
-                raiseBidBtn.disabled = true;
-                coyoteBtn.disabled = true;
-                prevBidBtn.disabled = true;
-                nextBidBtn.disabled = true;
+            bidInput.disabled = !isGameActive || !isHumanPlayerTurn;
+            raiseBidBtn.disabled = !isGameActive || !isHumanPlayerTurn;
+            coyoteBtn.disabled = !isGameActive || !isHumanPlayerTurn || currentBid.bidderIndex === -1;
+            prevBidBtn.disabled = !isGameActive || !isHumanPlayerTurn;
+            nextBidBtn.disabled = !isGameActive || !isHumanPlayerTurn;
+        }
+
+        function aiAction() {
+            if (!isRoundActive || currentPlayerIndex === 0) return; // Only AI players, and only if round is active
+
+            const aiPlayer = players[currentPlayerIndex];
+            const totalSumEstimate = estimateTotalSum(); // AI's estimate of the total sum
+
+            // AI decides whether to raise bid or call Coyote
+            if (currentBid.value === 0 || totalSumEstimate > currentBid.value + Math.floor(Math.random() * 5)) { // AI raises bid
+                const newBid = currentBid.value + Math.floor(Math.random() * 3) + 1; // Raise by 1-3
+                bidInput.value = newBid; // Simulate AI input for logging
+                handleRaiseBid();
+            } else { // AI calls Coyote
+                handleCoyote();
             }
         }
         
+        function estimateTotalSum() {
+            let sum = 0;
+            let hasMultiplier = false;
+            let hasMaxToZero = false;
+            let hasQuestionMark = false;
+            
+            // AI knows its own card (if it's not player 0) and other revealed cards
+            const knownCards = players.filter(p => !p.isEliminated && p.currentCard !== null && p.id !== players[0].id).map(p => p.currentCard);
+            
+            // If AI is player 0, it doesn't know its own card
+            if (currentPlayerIndex === 0) {
+                // AI's estimate is based on other players' revealed cards
+                // It doesn't know its own card, so it can't include it in the sum
+            } else {
+                // AI knows its own card
+                knownCards.push(players[currentPlayerIndex].currentCard);
+            }
+
+            knownCards.forEach(card => {
+                if (typeof card === 'number') {
+                    sum += card;
+                } else if (card === '×2') {
+                    hasMultiplier = true;
+                } else if (card === 'MAX→0') {
+                    hasMaxToZero = true;
+                } else if (card === '？') {
+                    hasQuestionMark = true;
+                }
+            });
+
+            // For unknown cards (including player 0's card if AI is not player 0, and any '?' cards not yet resolved)
+            // AI makes an educated guess based on remaining cards in the deck
+            const remainingCards = initialCardDeck.filter(card => {
+                return !dealtCards.includes(card);
+            });
+
+            // Simple AI: Assume unknown cards are average value
+            const averageCardValue = remainingCards.length > 0 ? 
+                remainingCards.filter(c => typeof c === 'number').reduce((a, b) => a + b, 0) / remainingCards.filter(c => typeof c === 'number').length : 0;
+
+            const unknownCardsCount = players.filter(p => !p.isEliminated && p.currentCard === null).length;
+            sum += unknownCardsCount * averageCardValue;
+
+            if (hasMaxToZero) {
+                // AI tries to account for MAX->0, but it's complex without knowing all cards
+                // For simplicity, we might just assume it reduces the highest known positive card to 0, or a small average effect.
+                // For now, let's just let the actual calculation handle it.
+            }
+
+            if (hasQuestionMark) {
+                // AI assumes '?' is an average card or a common card like 0 or 1.
+                sum += averageCardValue; // Add average value for '?'
+            }
+            
+            if (knownCards.some(c => c === '0_夜')) {
+                return 0; // If '0_夜' is known, sum is 0.
+            }
+
+            if (hasMultiplier) {
+                sum *= 2;
+            }
+
+            return Math.round(sum); // Return a rounded estimate
+        }
+
+
         function endGame() {
             isGameStarted = false;
             isRoundActive = false;
-            const winner = players.find(p => !p.isEliminated);
-            if (winner) {
-                updateMessageBox(`ゲーム終了！勝者は ${winner.name} です！`, "success");
-                addLogEntry(`ゲーム終了！勝者は ${winner.name} です！`, "success");
-            } else {
-                updateMessageBox("ゲーム終了！引き分けです。", "info");
-                addLogEntry("ゲーム終了！引き分けです。", "info");
-            }
-            nextRoundBtn.classList.add('hidden');
-            updateGameControls(); 
+            updateMessageBox("ゲーム終了！", "success");
+            updateGameControls();
+            nextRoundBtn.classList.add('hidden'); // Hide next round button if game ends
+            showCardCompositionBtn.classList.remove('hidden'); // Show card composition button
+            addLogEntry("ゲーム終了。", "success");
         }
 
         // --- Event Listeners ---
         raiseBidBtn.addEventListener('click', handleRaiseBid);
         coyoteBtn.addEventListener('click', handleCoyote);
-        nextRoundBtn.addEventListener('click', () => {
-            if (players.filter(p => !p.isEliminated).length > 1) {
-                startNewRound();
-            } else {
-                endGame();
-            }
-        });
-
-        prevBidBtn.addEventListener('click', () => {
-            if (bidInput.disabled) return;
-            let currentValue = parseInt(bidInput.value) || (currentBid.value > 0 ? currentBid.value + 1 : 1) ;
-            const minBid = (currentBid.bidderIndex !== -1 ? currentBid.value + 1 : 1);
-            if (currentValue > minBid) {
-                 bidInput.value = currentValue - 1;
-            } else {
-                bidInput.value = minBid; 
-            }
-        });
-
-        nextBidBtn.addEventListener('click', () => {
-            if (bidInput.disabled) return;
-            let currentValue = parseInt(bidInput.value) || (currentBid.value > 0 ? currentBid.value : 0);
-            bidInput.value = currentValue + 1;
-        });
-
+        nextRoundBtn.addEventListener('click', startNewRound);
         showCardCompositionBtn.addEventListener('click', () => {
-            renderAvailableCards(); 
+            renderAvailableCards();
             cardCompositionModal.classList.remove('hidden');
         });
         closeModalBtn.addEventListener('click', () => {
             cardCompositionModal.classList.add('hidden');
         });
-        cardCompositionModal.addEventListener('click', (event) => {
-            if (event.target === cardCompositionModal) {
-                cardCompositionModal.classList.add('hidden');
-            }
+        prevBidBtn.addEventListener('click', () => {
+            let currentVal = parseInt(bidInput.value, 10);
+            if (isNaN(currentVal)) currentVal = 0;
+            bidInput.value = Math.max(currentVal - 1, currentBid.value + 1); // Ensure it's not below current bid + 1
+        });
+        nextBidBtn.addEventListener('click', () => {
+            let currentVal = parseInt(bidInput.value, 10);
+            if (isNaN(currentVal)) currentVal = currentBid.value;
+            bidInput.value = currentVal + 1;
         });
 
-        // --- Game Setup on Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            setDynamicHeight(); 
-
-            let numPlayers = 3; 
-            // const numPlayersStr = prompt("プレイヤーの人数を入力してください (3-6):", "3");
-            // numPlayers = parseInt(numPlayersStr, 10);
-            // if (isNaN(numPlayers) || numPlayers < 3 || numPlayers > 6) {
-            //     console.error("無効な人数です。3から6の値を入力してください。デフォルトの3人で開始します。");
-            //     numPlayers = 3;
-            // }
-
-            initializePlayers(numPlayers);
-            if (players.length > 0 && players[0].name) { 
-                 updateMessageBox(`ようこそ！${numPlayers}人でゲームを開始します。`, "info");
-            } else { 
-                initializePlayers(3); 
-                updateMessageBox(`ようこそ！3人でゲームを開始します。`, "info");
-            }
-            
-            currentDealerIndex = players.length -1; 
-            currentPlayerIndex = 0; 
-
-            isGameStarted = true;
-            roundNumber = 0; 
-            startNewRound(); 
-            addLogEntry("ゲームが開始されました。", "success");
+        // Initial setup
+        window.addEventListener('load', () => {
+            setDynamicHeight();
+            initializePlayers(3); // Start with 3 players
+            startNewRound();
+            updateGameControls();
         });
-
         window.addEventListener('resize', setDynamicHeight);
-        window.addEventListener('orientationchange', setDynamicHeight);
 
     </script>
 </body>
