@@ -7,34 +7,52 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        html, body {
-            height: 100%; /* Ensure html and body take full viewport height */
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Prevent body scroll by default on mobile */
+        html {
+            height: 100%;
+            box-sizing: border-box;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
         }
         body {
+            height: 100%; /* Make body fill html */
+            margin: 0;
+            padding: 0; /* Remove body padding */
             font-family: 'Inter', sans-serif;
-            background-color: #F0F4F8; /* Light Gray Background - consistent with infographic */
+            background-color: #F0F4F8; /* Light Gray Background */
             display: flex;
-            justify-content: center;
-            align-items: center;
-            /* 動的に計算されたビューポートの高さを使用 */
-            height: calc(var(--vh, 1vh) * 100);
-            padding: 0.25rem 0.25rem 0 0.25rem; /* Adjusted padding: top, right, bottom (0), left */
+            justify-content: center; /* Center #mainLayout horizontally */
+            align-items: flex-start; /* Align #mainLayout to the top */
+            overflow: hidden; /* Prevent body scroll, assuming app is self-contained */
+        }
+        #mainLayout {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            width: 100%;
+            max-width: 390px; /* iPhone 14 Pro width */
+            /* height will be set by JS to window.innerHeight */
+            margin: 0; /* Centered by body's flex properties */
+            padding: 0.25rem 0.25rem 0 0.25rem; /* Original padding: top, right, bottom (0), left */
+            /* background-color: #FFFFFF; /* Optional: for debugging bounds */
             box-sizing: border-box;
         }
         .game-container, .log-container { /* Unified card styling */
-            background-color: #FFFFFF; /* White card background - consistent with infographic */
+            background-color: #FFFFFF;
             border-radius: 0.75rem; /* rounded-xl */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md - consistent with infographic */
-            padding: 0.25rem; /* Adjusted padding for compact view */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+            padding: 0.25rem;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.25rem; /* Adjusted gap for compact view */
-            height: 100%; /* Fill parent height in horizontal layout */
+            gap: 0.25rem;
+        }
+        #gameContainer {
+            width: 100%; /* Fill width of mainLayout */
+            flex-grow: 1; /* Critical: gameContainer takes remaining vertical space in mainLayout */
+            /* padding, gap, etc. are from .game-container */
+            overflow: hidden; /* Prevent gameContainer itself from scrolling; children handle it */
         }
         .palette-red { color: #FF6B6B; }
         .palette-yellow { color: #FFD166; }
@@ -49,30 +67,30 @@
         .bg-palette-dark-blue { background-color: #073B4C; }
 
         .btn {
-            padding: 0.4rem 0.8rem; /* Increased button padding */
-            font-size: 0.8rem; /* Increased button font size */
-            border-radius: 0.25rem; /* Reduced border-radius */
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 0.25rem;
             font-weight: 600;
             transition: all 0.2s ease-in-out;
-            box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.05), 0 0.5px 1px -0.5px rgba(0, 0, 0, 0.03); /* Further reduced shadow */
+            box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.05), 0 0.5px 1px -0.5px rgba(0, 0, 0, 0.03);
         }
         .btn-primary {
-            background-color: #118AB2; /* Strong Blue - consistent with infographic */
+            background-color: #118AB2;
             color: white;
         }
         .btn-primary:hover {
             background-color: #0d6e8b;
-            transform: translateY(-0.5px); /* Further reduced transform */
-            box-shadow: 0 1.5px 2px -0.5px rgba(0, 0, 0, 0.075), 0 0.75px 1.25px -0.25px rgba(0, 0, 0, 0.04); /* Further reduced shadow */
+            transform: translateY(-0.5px);
+            box-shadow: 0 1.5px 2px -0.5px rgba(0, 0, 0, 0.075), 0 0.75px 1.25px -0.25px rgba(0, 0, 0, 0.04);
         }
         .btn-danger {
-            background-color: #FF6B6B; /* Vibrant Red - consistent with infographic */
+            background-color: #FF6B6B;
             color: white;
         }
         .btn-danger:hover {
             background-color: #e65a5a;
-            transform: translateY(-0.5px); /* Further reduced transform */
-            box-shadow: 0 1.5px 2px -0.5px rgba(0, 0, 0, 0.075), 0 0.75px 1.25px -0.25px rgba(0, 0, 0, 0.04); /* Further reduced shadow */
+            transform: translateY(-0.5px);
+            box-shadow: 0 1.5px 2px -0.5px rgba(0, 0, 0, 0.075), 0 0.75px 1.25px -0.25px rgba(0, 0, 0, 0.04);
         }
         .btn:disabled {
             opacity: 0.6;
@@ -81,81 +99,80 @@
             transform: none;
         }
         .player-card {
-            width: 60px; /* Fixed width for mobile and desktop */
-            height: 80px; /* Fixed height for mobile and desktop */
-            background-color: #073B4C; /* Dark Blue for back - consistent with infographic */
-            border-radius: 0.25rem; /* Adjusted border-radius */
+            width: 60px;
+            height: 80px;
+            background-color: #073B4C; /* Dark Blue for back */
+            border-radius: 0.25rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1rem; /* Adjusted font size */
+            font-size: 1rem;
             font-weight: bold;
             color: white;
-            border: 1.5px solid #118AB2; /* Adjusted border */
-            box-shadow: 0 1.5px 3px -0.5px rgba(0, 0, 0, 0.06), 0 0.75px 1.5px -0.25px rgba(0, 0, 0, 0.03); /* Adjusted shadow */
+            border: 1.5px solid #118AB2;
+            box-shadow: 0 1.5px 3px -0.5px rgba(0, 0, 0, 0.06), 0 0.75px 1.5px -0.25px rgba(0, 0, 0, 0.03);
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .player-card.revealed {
-            background-color: #FFD166; /* Yellow for revealed - consistent with infographic */
+            background-color: #FFD166; /* Yellow for revealed */
             color: #073B4C;
             border-color: #FF6B6B; /* Red border for revealed */
         }
-        .player-card .card-value { /* Target the span specifically */
-            white-space: nowrap; /* Prevent numbers from wrapping vertically */
+        .player-card .card-value {
+            white-space: nowrap;
         }
         .player-area {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.05rem; /* Further reduced gap for mobile player area */
-            padding: 0.05rem; /* Further reduced padding for mobile player area */
-            border-radius: 0.15rem; /* Adjusted border-radius */
+            gap: 0.05rem;
+            padding: 0.05rem;
+            border-radius: 0.15rem;
             transition: background-color 0.3s ease;
         }
         .player-area.active {
-            background-color: #E0F7FA; /* Light blue tint for active player */
-            border: 0.5px solid #118AB2; /* Further reduced border */
+            background-color: #E0F7FA; /* Light blue tint */
+            border: 0.5px solid #118AB2;
         }
-        .player-area h3 { /* Player name font size adjustment */
-            font-size: 0.5rem; /* Adjusted font size for player names */
+        .player-area h3 {
+            font-size: 0.5rem;
             font-weight: 600;
             color: #073B4C;
-            margin-bottom: 0; /* Remove default margin */
-            line-height: 1; /* Compact line height */
+            margin-bottom: 0;
+            line-height: 1;
         }
-        .player-area p { /* Life text font size */
-            font-size: 0.5rem; /* Adjusted font size for life text */
-            line-height: 1; /* Compact line height */
+        .player-area p {
+            font-size: 0.5rem;
+            line-height: 1;
         }
         .message-box {
-            background-color: #FFFBEB; /* Light yellow - consistent with infographic */
-            border: 0.25px solid #FFD166; /* Further reduced border */
+            background-color: #FFFBEB; /* Light yellow */
+            border: 0.25px solid #FFD166;
             color: #78350F; /* Dark brown */
-            padding: 0.15rem 0.3rem; /* Further reduced padding */
-            border-radius: 0.15rem; /* Adjusted border-radius */
-            margin-top: 0.1rem; /* Further reduced margin */
+            padding: 0.15rem 0.3rem;
+            border-radius: 0.15rem;
+            margin-top: 0.1rem;
             margin-bottom: 0.1rem;
             width: 100%;
             text-align: center;
             font-weight: 500;
-            font-size: 0.5rem; /* Further reduced font size */
+            font-size: 0.5rem;
         }
         .hidden-card-back {
-            background-color: #073B4C; /* Dark Blue */
-            border: 1.5px solid #118AB2; /* Adjusted border */
+            background-color: #073B4C;
+            border: 1.5px solid #118AB2;
         }
         .card-deck-item {
-            /* width will be set dynamically in JS */
-            height: 45px; /* Increased card deck item height */
+            height: 45px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 0.1rem; /* Further reduced border-radius */
-            font-size: 0.8rem; /* Increased font size */
+            border-radius: 0.1rem;
+            font-size: 0.8rem;
             font-weight: bold;
-            border: 0.1px solid; /* Further reduced border */
+            border: 0.1px solid;
             transition: all 0.3s ease;
-            white-space: nowrap; /* Prevent numbers from wrapping vertically */
+            white-space: nowrap;
         }
         .card-deck-item.used {
             background-color: #E2E8F0; /* Gray-200 */
@@ -163,69 +180,41 @@
             border-color: #CBD5E0; /* Gray-300 */
             opacity: 0.7;
         }
-        /* Log specific styling for highlighting */
         .log-player-name {
-            color: #118AB2; /* palette-blue */
-            font-weight: 600; /* font-semibold */
+            color: #118AB2;
+            font-weight: 600;
         }
         .log-number {
-            color: #FF6B6B; /* palette-red */
-            font-weight: 700; /* font-bold */
+            color: #FF6B6B;
+            font-weight: 700;
         }
 
-        /* --- Universal Layout (Applies to all screen sizes) --- */
-        #mainLayout {
-            display: flex;
-            flex-direction: column; /* Column layout for all screens */
-            gap: 0.25rem; /* Adjusted gap for main layout */
-            width: 100%;
-            /* Dynamically set height using JS for accurate viewport height */
-            height: 100%; /* bodyがvar(--vh)を使用するため、ここは100%で親要素に合わせる */
-            max-width: 390px; /* Constrain max width to iPhone 14 width universally */
-            margin: 0 auto; /* Center on all screens */
-            padding: 0.25rem 0.25rem 0 0.25rem; /* Adjusted padding: top, right, bottom (0), left */
-            box-sizing: border-box;
-        }
-
-        #gameContainer {
-            width: 100%;
-            height: 100%; /* Fill mainLayout height */
-            flex-grow: 1;
-            padding: 0.25rem; /* Adjusted padding */
-            gap: 0.25rem; /* Adjusted gap */
-            overflow: hidden; /* No scrollbar on game container itself */
-            display: flex; /* Make gameContainer a flex column */
-            flex-direction: column;
-        }
         #gameContainer h1 {
-            font-size: 0.8rem; /* Further reduced h1 font size */
-            color: #073B4C; /* Dark Blue - consistent with infographic */
-            margin-bottom: 0.1rem; /* Reduce margin */
+            font-size: 0.8rem;
+            color: #073B4C;
+            margin-bottom: 0.1rem;
         }
         #roundDisplay {
-            font-size: 0.6rem; /* Further reduced round display font size */
-            color: #118AB2; /* Strong Blue - consistent with infographic */
-            margin-bottom: 0.1rem; /* Reduce margin */
+            font-size: 0.6rem;
+            color: #118AB2;
+            margin-bottom: 0.1rem;
         }
-        #gameContainer h2 {
-            font-size: 0.6rem; /* Further reduced h2 font size */
-            color: #073B4C; /* Dark Blue - consistent with infographic */
-            margin-bottom: 0.1rem; /* Reduce margin */
+        #gameContainer h2 { /* Applies to "カード構成" and "ゲームログ" titles */
+            font-size: 0.6rem;
+            color: #073B4C;
+            margin-bottom: 0.1rem;
         }
 
-        /* Fixed width for the control row */
         .control-row-width {
-            /* Sum of fixed widths (90 + 60 + 60 + 90) + 3 gaps of 0.1rem (3 * 1.6px = 4.8px) */
             width: calc(90px + 60px + 60px + 90px + 3 * 0.1rem);
-            max-width: 100%; /* Ensure it doesn't overflow if screen is too small */
+            max-width: 100%;
         }
-
         #bidInput {
-            width: 90px; /* Fixed width */
-            height: 1.5rem; /* Consistent height for all elements in this row */
-            padding: 0.05rem; /* Adjust padding to fit new height */
-            font-size: 0.6rem; /* Adjust font size */
-            box-sizing: border-box; /* Include padding in element's total width and height */
+            width: 90px;
+            height: 1.5rem;
+            padding: 0.05rem;
+            font-size: 0.6rem;
+            box-sizing: border-box;
             text-align: center;
             border: 0.5px solid #CBD5E0;
             border-radius: 0.25rem;
@@ -235,103 +224,106 @@
             border-color: #118AB2;
             box-shadow: 0 0 0 1.5px rgba(17, 138, 178, 0.2);
         }
-
         #prevBidBtn, #nextBidBtn {
-            width: 60px; /* Fixed width */
-            padding: 0.05rem; /* Adjust padding for smaller buttons */
-            font-size: 0.5rem; /* Adjust font size */
-            height: 1.5rem; /* Consistent height */
+            width: 60px;
+            padding: 0.05rem;
+            font-size: 0.5rem;
+            height: 1.5rem;
             box-sizing: border-box;
         }
-
         #raiseBidBtn {
-            width: 90px; /* Fixed width */
-            padding: 0.05rem; /* Adjust padding */
-            font-size: 0.6rem; /* Adjust font size */
-            height: 1.5rem; /* Consistent height */
+            width: 90px;
+            padding: 0.05rem;
+            font-size: 0.6rem;
+            height: 1.5rem;
             box-sizing: border-box;
         }
-
         #gameControls {
-            flex-direction: column; /* Column layout for rows */
-            gap: 0.1rem; /* Reduced gap between rows */
+            display: flex; /* Ensure #gameControls is flex for its children */
+            flex-direction: column;
+            gap: 0.1rem;
             width: 100%;
-            margin-top: 0.1rem; /* Reduced margin-top */
-            flex-shrink: 0; /* Prevent shrinking */
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+            align-items: center; /* Center control rows */
         }
-        #gameControls > div { /* Apply to direct children (the two rows) */
-            width: 100%; /* Take full width of parent */
+        #gameControls > div { /* Control rows */
+            width: auto; /* Allow row to be its content width (control-row-width) */
             display: flex;
-            justify-content: center; /* Center the fixed-width items */
-            align-items: stretch; /* Make all items in this row the same height */
-            gap: 0.1rem; /* Reduced gap within rows */
+            justify-content: center;
+            align-items: stretch;
+            gap: 0.1rem;
         }
         #coyoteBtn {
             width: 100%; /* Full width of its parent .control-row-width */
-            height: 1.5rem; /* Consistent height with the row above */
+            height: 1.5rem;
             padding: 0.05rem;
             font-size: 0.6rem;
             box-sizing: border-box;
         }
-        /* Removed #nextRoundBtn, #showCardCompositionBtn from here */
-
-
         #playersArea {
-            display: grid; /* FlexからGridに変更 */
-            grid-template-columns: repeat(3, 1fr); /* Evenly spaced columns */
-            gap: 0.1rem; /* Adjusted gap for player grid */
-            justify-content: center; /* Center the grid items within the playersArea */
-            flex-grow: 1; /* Allow players area to take remaining space */
-            overflow-y: auto; /* Add scroll if many players */
-            flex-shrink: 1; /* Allow it to shrink if needed */
-        }
-        /* Adjusted margin for card composition section */
-        .card-composition-section {
-            margin-top: 0.1rem; /* Further reduced margin-top */
+            display: grid; /* Changed from flex to grid */
+            grid-template-columns: repeat(3, 1fr); /* 3 columns */
+            gap: 0.1rem;
+            width: 100%; /* Full width */
+            justify-items: center; /* Center items in grid cells */
             flex-shrink: 0;
-            width: 100%; /* Ensure it spans full width */
-            text-align: center; /* Center the h2 */
+            margin-top: 0.1rem; /* Small margin */
+        }
+        .card-composition-section { /* This is for the inline version, now hidden by default */
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+            width: 100%;
+            text-align: center;
         }
         .card-composition-section h2 {
-            font-size: 0.6rem; /* Reduced font size */
-            text-align: center; /* Ensure text is centered */
+            font-size: 0.6rem;
+            text-align: center;
         }
-        #availableCardsArea {
-            /* Changed to column to stack rows */
+        #availableCardsArea { /* Inside inline card-composition-section */
             display: flex;
             flex-direction: column;
-            gap: 0.05rem; /* Reduced gap between rows */
-            justify-content: center; /* Center rows */
-            width: 100%; /* Ensure it takes full width */
+            gap: 0.05rem;
+            justify-content: center;
+            width: 100%;
         }
 
-        #logDisplay {
-            /* height: auto; Removed fixed height */
-            /* max-height: none; Removed fixed max-height */
-            flex-grow: 1; /* Allow it to take remaining space */
-            width: 100%; /* Full width within gameContainer */
-            padding: 0.25rem;
+        #logDisplay { /* This is a .log-container */
+            /* height: auto; /* Let content define height */
+            /* max-height: none; */
+            /* flex-grow: 0; /* Do not let it grow excessively */
+            width: 100%;
+            /* padding is from .log-container */
             flex-shrink: 0; /* Prevent shrinking */
-            background-color: #FFFFFF; /* White card background */
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            display: flex; /* Make it a flex container */
-            flex-direction: column; /* Stack title and content vertically */
+            /* background-color, border-radius, box-shadow from .log-container */
+            /* display: flex, flex-direction: column from .log-container */
         }
-        #logDisplay h2 {
-            font-size: 0.6rem;
+        #logDisplay h2 { /* "ゲームログ" title */
+            font-size: 0.6rem; /* Consistent with other h2 */
             margin-bottom: 0.1rem;
-            flex-shrink: 0; /* Prevent title from shrinking */
+            flex-shrink: 0;
+            color: #073B4C; /* Consistent */
         }
-        .log-content-scrollable { /* New container for scrollable log content */
-            overflow-y: auto; /* Make this part scrollable */
-            width: 100%; /* Ensure it takes full width */
-            height: 6.7rem; /* Fixed height for 5 lines of log content (0.7rem font-size * 1.2 line-height + 0.5rem padding) * 5 lines */
+        .log-content-scrollable {
+            overflow-y: auto;
+            width: 100%;
+            height: 6.7rem; /* Fixed height for approx 5 lines */
+            border: 1px solid #E2E8F0; /* Subtle border */
+            border-radius: 0.25rem; /* Rounded corners for scroll area */
+            padding: 0.1rem; /* Inner padding for log text */
         }
         #logContent {
-            font-size: 0.7rem; /* Adjusted font size for log content */
-            line-height: 1.2; /* Adjusted line height for log content */
+            font-size: 0.7rem;
+            line-height: 1.2;
+            display: flex; /* Allow flex properties for children if needed */
+            flex-direction: column; /* Stack log entries */
+            gap: 0.1rem; /* Small gap between log entries */
         }
+        #logContent p { /* Individual log entries */
+            padding: 0.05rem 0.1rem; /* Minimal padding for each entry */
+            border-radius: 0.1rem; /* Slight rounding for entries */
+        }
+
 
         /* Modal Styles */
         .modal-overlay {
@@ -340,100 +332,126 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+            background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000; /* Ensure it's on top of other content */
-            backdrop-filter: blur(2px); /* Optional: blur background */
+            z-index: 1000;
+            backdrop-filter: blur(3px); /* Stronger blur */
+            padding: 0.5rem; /* Padding for smaller screens */
         }
-
         .modal-content {
             background-color: #FFFFFF;
-            border-radius: 0.75rem;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            padding: 1rem;
-            max-width: 350px; /* Adjusted for iPhone 14 width */
-            max-height: 90vh; /* Max height to fit screen, allow scroll if content is too long */
-            overflow-y: auto; /* Enable scrolling for content if it exceeds max-height */
+            border-radius: 0.75rem; /* Consistent rounding */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.1); /* Softer shadow */
+            padding: 0.75rem; /* Reduced padding for compact modal */
+            width: 100%; /* Full width within overlay padding */
+            max-width: 360px; /* Max width for modal */
+            max-height: calc(100% - 1rem); /* Max height considering overlay padding */
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            position: relative; /* For positioning close button */
+            gap: 0.25rem; /* Reduced gap */
+            position: relative;
         }
-
+        .modal-content h2 { /* Modal title */
+            font-size: 0.8rem; /* Slightly larger modal title */
+            font-weight: 700; /* Bolder */
+            text-align: center;
+            color: #073B4C;
+            margin-bottom: 0.25rem; /* Space below title */
+        }
         .modal-close-btn {
             position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: none;
+            top: 0.25rem; /* Closer to edge */
+            right: 0.25rem;
+            background: transparent;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1rem; /* Smaller close icon */
+            font-weight: bold;
+            line-height: 1;
+            padding: 0.2rem; /* Make clickable area slightly larger */
             cursor: pointer;
             color: #073B4C;
-            font-weight: bold;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .modal-close-btn:hover {
+            opacity: 1;
+        }
+        #modalAvailableCardsArea {
+            display: flex;
+            flex-direction: column; /* Stack rows of cards */
+            gap: 0.05rem; /* Reduced gap between rows */
+            justify-content: center;
+            width: 100%;
+        }
+        #modalAvailableCardsArea .flex.flex-row { /* Each row of cards */
+             gap: 0.05rem !important; /* Ensure small gap between cards in a row */
         }
 
-        /* New styles for bottom buttons */
+
         #bottomButtons {
             display: flex;
             justify-content: center;
-            gap: 0.5rem; /* Increased gap between buttons */
+            gap: 0.5rem;
             width: 100%;
-            margin-top: 0.25rem; /* Add some space above */
+            margin-top: auto; /* Push to bottom if #gameContainer has extra space */
+            padding-top: 0.25rem; /* Space above buttons */
+            /* padding-bottom: 0.1rem; /* Small padding at the very bottom of game area */
             flex-shrink: 0;
-            padding-bottom: 0.5rem; /* Increased padding to give more space */
         }
         #bottomButtons .btn {
-            flex-grow: 1; /* Allow buttons to grow and fill space */
-            width: calc(50% - 0.25rem); /* Calculate width for two buttons with gap */
-            height: 2.5rem; /* Make buttons taller */
-            font-size: 0.8rem; /* Adjust font size for larger buttons */
+            flex-grow: 1;
+            width: calc(50% - 0.25rem); /* For two buttons */
+            max-width: 180px; /* Max width for each button */
+            height: 2rem;
+            font-size: 0.7rem;
         }
     </style>
 </head>
 <body>
-    <div id="mainLayout" class="flex flex-col gap-4 w-full h-full items-start">
-        <div id="gameContainer" class="game-container flex-grow">
-            <h1 class="text-3xl font-bold mb-2">コヨーテゲーム</h1>
-            <div id="roundDisplay" class="text-xl font-semibold mb-2">
+    <div id="mainLayout">
+        <div id="gameContainer" class="game-container">
+            <h1 class="text-3xl font-bold">コヨーテゲーム</h1>
+            <div id="roundDisplay" class="text-xl font-semibold">
                 ラウンド: <span id="currentRoundNumber">0</span>
             </div>
 
             <div id="messageBox" class="message-box hidden"></div>
 
-            <div id="playersArea" class="grid grid-cols-3 gap-1 w-full justify-items-center">
-            </div>
+            <div id="playersArea" class="grid grid-cols-1 gap-4 w-full justify-items-center">
+                </div>
 
-            <div id="gameControls" class="flex flex-col gap-2 mt-4 w-full justify-center items-center">
+            <div id="gameControls" class="flex flex-col gap-2 w-full items-center">
                 <div class="flex flex-row gap-1 justify-center items-center control-row-width">
-                    <input type="number" id="bidInput" placeholder="数字を入力" class="p-2 border border-gray-300 rounded-md text-center text-lg focus:outline-none focus:ring-2 focus:ring-palette-blue whitespace-nowrap">
+                    <input type="number" id="bidInput" placeholder="数字を入力" class="p-2 border rounded-md text-center">
                     <button id="prevBidBtn" class="btn btn-primary">←</button>
                     <button id="nextBidBtn" class="btn btn-primary">→</button>
-                    <button id="raiseBidBtn" class="btn btn-primary flex-grow">宣言する</button>
+                    <button id="raiseBidBtn" class="btn btn-primary">宣言</button>
                 </div>
                 <div class="w-full control-row-width">
                     <button id="coyoteBtn" class="btn btn-danger w-full">コヨーテ！</button>
                 </div>
-                </div>
-
+            </div>
+            
             <div class="card-composition-section hidden">
-                <h2 class="text-xl font-semibold mb-2">カード構成</h2>
+                <h2>カード構成</h2>
                 <div id="availableCardsArea" class="flex flex-wrap justify-center gap-1">
-                </div>
+                    </div>
             </div>
 
             <div id="logDisplay" class="log-container w-full">
-                <h2 class="text-xl font-bold mb-2">ゲームログ</h2>
+                <h2>ゲームログ</h2>
                 <div class="log-content-scrollable">
                     <div id="logContent" class="text-sm space-y-1">
-                    </div>
+                        </div>
                 </div>
             </div>
 
             <div id="bottomButtons">
-                <button id="nextRoundBtn" class="btn btn-primary hidden">次のラウンドに進む</button>
-                <button id="showCardCompositionBtn" class="btn btn-primary">カード構成を表示</button>
+                <button id="nextRoundBtn" class="btn btn-primary hidden">次のラウンド</button>
+                <button id="showCardCompositionBtn" class="btn btn-primary">カード構成</button>
             </div>
         </div>
     </div>
@@ -441,86 +459,36 @@
     <div id="cardCompositionModal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close-btn" id="closeModalBtn">✖</button>
-            <h2 class="text-xl font-bold mb-2 text-center text-palette-dark-blue">カード構成</h2>
+            <h2>カード構成</h2>
             <div id="modalAvailableCardsArea" class="flex flex-wrap justify-center gap-1">
                 </div>
         </div>
     </div>
 
     <script>
-        // Function to set CSS custom property for viewport height
-        function setViewportHeight() {
-            let vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-
-        // Initial set and on resize
-        window.addEventListener('DOMContentLoaded', setViewportHeight);
-        window.addEventListener('resize', setViewportHeight);
-
         const players = [];
         let currentDealerIndex = 0;
         let currentPlayerIndex = 0;
-        let cardsInPlay = []; // This array holds the actual card values dealt to players for sum calculation in the current round
-        let dealtCards = []; // This array tracks all card values that have been dealt throughout the game
+        let cardsInPlay = [];
+        let dealtCards = []; // Tracks all cards dealt throughout the game (for card composition)
         let currentBid = { value: 0, bidderIndex: -1 };
         let isGameStarted = false;
         let isRoundActive = false;
         let roundNumber = 0;
-        let logEntryCounter = 0; // Counter for sequential log entries
+        let logEntryCounter = 0;
         const initialLives = 3;
-        
-        // Define the full initial deck based on the new composition
+
         const initialCardDeck = [
-            // -10: 1枚
-            -10,
-            // -5: 2枚
-            -5, -5,
-            // 0: 4枚
-            0, 0, 0, 0,
-            // 0(夜): 1枚
-            '0_夜', 
-            // 1: 4枚
-            1, 1, 1, 1,
-            // 2: 4枚
-            2, 2, 2, 2,
-            // 3: 4枚
-            3, 3, 3, 3,
-            // 4: 4枚
-            4, 4, 4, 4,
-            // 5: 4枚
-            5, 5, 5, 5,
-            // 10: 4枚
-            10, 10, 10, 10,
-            // 15: 2枚
-            15, 15,
-            // 20: 1枚
-            20,
-            // ×2: 1枚
-            '×2',
-            // MAX→0: 1枚
-            'MAX→0',
-            // ?: 1枚
-            '？'
+            -10, -5, -5, 0, 0, 0, 0, '0_夜', 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3,
+            4, 4, 4, 4, 5, 5, 5, 5, 10, 10, 10, 10, 15, 15, 20, '×2', 'MAX→0', '？'
         ];
 
-        // Define the display order and counts for the "Card Composition" section
         const cardCompositionDisplayOrder = [
-            { value: 20, count: 1 },
-            { value: 15, count: 2 },
-            { value: 10, count: 4 },
-            { value: 5, count: 4 },
-            { value: 4, count: 4 },
-            { value: 3, count: 4 },
-            { value: 2, count: 4 },
-            { value: 1, count: 4 },
-            { value: 0, count: 4 },
-            { value: '0_夜', count: 1 }, // 0(夜)を明示的に追加
-            { value: -5, count: 2 },
-            { value: -10, count: 1 },
-            { value: '×2', count: 1 },
-            { value: 'MAX→0', count: 1 },
-            { value: '？', count: 1 }
+            { value: 20, count: 1 }, { value: 15, count: 2 }, { value: 10, count: 4 },
+            { value: 5, count: 4 }, { value: 4, count: 4 }, { value: 3, count: 4 },
+            { value: 2, count: 4 }, { value: 1, count: 4 }, { value: 0, count: 4 },
+            { value: '0_夜', count: 1 }, { value: -5, count: 2 }, { value: -10, count: 1 },
+            { value: '×2', count: 1 }, { value: 'MAX→0', count: 1 }, { value: '？', count: 1 }
         ];
 
         // DOM Elements
@@ -529,563 +497,569 @@
         const bidInput = document.getElementById('bidInput');
         const raiseBidBtn = document.getElementById('raiseBidBtn');
         const coyoteBtn = document.getElementById('coyoteBtn');
-        const prevBidBtn = document.getElementById('prevBidBtn'); // New button reference
-        const nextBidBtn = document.getElementById('nextBidBtn'); // New button reference
-        // const availableCardsArea = document.getElementById('availableCardsArea'); // この要素はモーダル内に移動
+        const prevBidBtn = document.getElementById('prevBidBtn');
+        const nextBidBtn = document.getElementById('nextBidBtn');
         const currentRoundNumberDisplay = document.getElementById('currentRoundNumber');
-        const logContent = document.getElementById('logContent'); // Log content element
-        const logDisplay = document.getElementById('logDisplay'); // Reference to the log container itself
-        const nextRoundBtn = document.getElementById('nextRoundBtn'); // New button reference
-
-        // Modal related DOM elements
+        
+        const logContentElement = document.getElementById('logContent'); // Where <p> tags are added
+        const logScrollableContainer = logContentElement.parentElement; // This is .log-content-scrollable
+        
+        const nextRoundBtn = document.getElementById('nextRoundBtn');
         const showCardCompositionBtn = document.getElementById('showCardCompositionBtn');
         const cardCompositionModal = document.getElementById('cardCompositionModal');
-        const modalAvailableCardsArea = document.getElementById('modalAvailableCardsArea'); // モーダル内のカード表示エリア
+        const modalAvailableCardsArea = document.getElementById('modalAvailableCardsArea');
         const closeModalBtn = document.getElementById('closeModalBtn');
 
+        // --- Dynamic Height Adjustment ---
+        function setDynamicHeight() {
+            const mainLayout = document.getElementById('mainLayout');
+            if (mainLayout) {
+                mainLayout.style.height = window.innerHeight + 'px';
+            }
+        }
 
-        // Game Initialization
+        // --- Game Initialization ---
         function initializePlayers(numPlayers = 3) {
-            players.length = 0; // Clear existing players
+            players.length = 0;
             for (let i = 0; i < numPlayers; i++) {
                 players.push({
-                    id: `player${i}`,
-                    name: `プレイヤー${i + 1}`,
-                    lives: initialLives,
-                    currentCard: null,
-                    isEliminated: false
+                    id: `player${i}`, name: `プレイヤー${i + 1}`, lives: initialLives,
+                    currentCard: null, isEliminated: false
                 });
             }
             renderPlayers();
         }
 
-        // Render Players UI
+        // --- UI Rendering ---
         function renderPlayers() {
             playersArea.innerHTML = '';
             players.forEach((player, index) => {
-                if (player.isEliminated) return; // Don't render eliminated players
+                if (player.isEliminated) return;
 
                 const playerDiv = document.createElement('div');
                 playerDiv.id = player.id;
-                // Active player highlighting only when round is active
-                playerDiv.className = `player-area card ${currentPlayerIndex === index && isRoundActive ? 'active' : ''}`;
-                // Adjusted player name and life text sizes
+                playerDiv.className = `player-area ${currentPlayerIndex === index && isRoundActive ? 'active' : ''}`;
                 playerDiv.innerHTML = `
-                    <h3 class="font-semibold text-palette-dark-blue">${player.name}</h3>
-                    <p class="text-sm text-muted">ライフ: <span class="font-bold text-palette-red">${'❤️'.repeat(player.lives)}</span></p>
+                    <h3>${player.name}</h3>
+                    <p>ライフ: <span class="font-bold palette-red">${'❤️'.repeat(player.lives)}</span></p>
                     <div class="player-card">
-                        <span class="card-value">${player.currentCard !== null ? player.currentCard : '?'}</span>
-                    </div>
-                `;
+                        <span class="card-value">?</span>
+                    </div>`;
                 playersArea.appendChild(playerDiv);
 
                 const cardElement = playerDiv.querySelector('.player-card');
                 const cardValueElement = cardElement.querySelector('.card-value');
 
-                // Logic for showing/hiding cards
-                // If the round is active AND it's the user's card (player 0), hide it.
-                // Otherwise (round is over, or it's an AI player), reveal the card.
-                if (isRoundActive && index === 0) {
+                if (isRoundActive && index === 0) { // User's own card during active round
                     cardValueElement.textContent = '?';
                     cardElement.classList.add('hidden-card-back');
                     cardElement.classList.remove('revealed');
-                } else if (player.currentCard !== null) {
-                    // For AI players or when round is over, show the card
-                    cardValueElement.textContent = player.currentCard; // Display string for special cards
+                } else if (player.currentCard !== null) { // AI cards or any card when round is not active (or over)
+                    cardValueElement.textContent = formatCardDisplay(player.currentCard);
                     cardElement.classList.add('revealed');
                     cardElement.classList.remove('hidden-card-back');
-                } else {
-                    // Default for non-active, non-revealed (e.g., eliminated player's card area)
+                } else { // Default hidden
                     cardValueElement.textContent = '?';
                     cardElement.classList.add('hidden-card-back');
                     cardElement.classList.remove('revealed');
                 }
             });
         }
+        
+        function formatCardDisplay(cardValue) {
+            if (cardValue === '0_夜') return '0(夜)';
+            if (cardValue === 'MAX→0') return 'M→0';
+            return cardValue;
+        }
 
-        // Render Available Cards in the Deck Area (Card Composition) - Now renders into the modal
         function renderAvailableCards() {
-            modalAvailableCardsArea.innerHTML = ''; // Clear previous cards in modal
+            modalAvailableCardsArea.innerHTML = '';
 
-            // Create counts for cards currently in play (visible to other players) for this round
             const currentRoundVisibleCardCounts = {};
             players.forEach((player, index) => {
-                if (!player.isEliminated && index !== 0 && player.currentCard !== null) {
+                if (!player.isEliminated && index !== 0 && player.currentCard !== null && isRoundActive) { // Only count visible AI cards during active round
                     currentRoundVisibleCardCounts[player.currentCard] = (currentRoundVisibleCardCounts[player.currentCard] || 0) + 1;
                 }
             });
+            
+            const tempDealtCounts = dealtCards.reduce((acc, card) => {
+                acc[card] = (acc[card] || 0) + 1;
+                return acc;
+            }, {});
 
-            // Create counts for all cards dealt throughout the game
-            const dealtCardCountsInGame = {};
-            dealtCards.forEach(card => {
-                dealtCardCountsInGame[card] = (dealtCardCountsInGame[card] || 0) + 1;
-            });
-
-            // Create mutable copies of counts for rendering, so we can "consume" them
-            const tempDealtCounts = { ...dealtCardCountsInGame };
-            const tempVisibleCounts = { ...currentRoundVisibleCardCounts };
 
             cardCompositionDisplayOrder.forEach(cardType => {
                 const rowDiv = document.createElement('div');
-                // Use flexbox for the row to center items and control spacing
-                rowDiv.className = 'flex flex-row justify-center items-center gap-0.05rem w-full';
+                rowDiv.className = 'flex flex-row justify-center items-center w-full'; // Removed gap here, will be applied by card-deck-item margin or parent gap
                 modalAvailableCardsArea.appendChild(rowDiv);
 
-                // Calculate width dynamically for each card in this row
-                // This ensures cards are evenly spaced and fit the row
                 const itemWidth = `calc((100% - ${(cardType.count - 1) * 0.05}rem) / ${cardType.count})`;
 
                 for (let i = 0; i < cardType.count; i++) {
                     const cardValue = cardType.value;
                     const cardElement = document.createElement('div');
-
+                    
                     let isGrayed = false;
-                    // Prioritize graying out cards visible in the current round, then any dealt cards
-                    if (tempVisibleCounts[cardValue] && tempVisibleCounts[cardValue] > 0) {
+                    // Gray out if it's a visible AI card in the current round
+                    if (currentRoundVisibleCardCounts[cardValue] && currentRoundVisibleCardCounts[cardValue] > 0) {
                         isGrayed = true;
-                        tempVisibleCounts[cardValue]--; // "Consume" one visible card for rendering
-                    } else if (tempDealtCounts[cardValue] && tempDealtCounts[cardValue] > 0) {
-                        isGrayed = true;
-                        tempDealtCounts[cardValue]--; // "Consume" one dealt card for rendering
+                        currentRoundVisibleCardCounts[cardValue]--;
+                    } 
+                    // Else, gray out if it's a card that has been dealt in previous rounds (or current player's card)
+                    else if (tempDealtCounts[cardValue] && tempDealtCounts[cardValue] > 0) {
+                        // Check if this card is the current player's card (player 0)
+                        const player0Card = players[0] ? players[0].currentCard : null;
+                        if (isRoundActive && cardValue === player0Card && i < tempDealtCounts[cardValue]) {
+                            // This specific instance is the player's own card, don't gray it based on dealtCards
+                            // unless all other instances are accounted for by AI.
+                            // This logic can get complex. For simplicity, if it's in dealtCards, it's "used" from player's perspective.
+                            isGrayed = true;
+                            tempDealtCounts[cardValue]--;
+                        } else if (cardValue !== player0Card || !isRoundActive) {
+                             isGrayed = true;
+                             tempDealtCounts[cardValue]--;
+                        }
                     }
 
-                    cardElement.className = `card-deck-item ${isGrayed ? 'used bg-gray-300 text-gray-500 border-gray-400 opacity-70' : 'bg-white text-palette-dark-blue border-palette-blue'}`;
-                    cardElement.style.width = itemWidth; // Apply dynamic width
-                    cardElement.textContent = cardValue;
+
+                    cardElement.className = `card-deck-item ${isGrayed ? 'used' : 'bg-white text-palette-dark-blue border-palette-blue'}`;
+                    cardElement.style.width = itemWidth;
+                    cardElement.style.margin = "0.025rem"; // Add small margin for spacing if gap on parent is removed
+                    cardElement.textContent = formatCardDisplay(cardValue);
                     rowDiv.appendChild(cardElement);
                 }
             });
         }
 
-        // Update the main message box
+
         function updateMessageBox(msg, type = 'info') {
             messageBox.textContent = msg;
-            messageBox.classList.remove('hidden', 'bg-red-100', 'border-red-400', 'text-red-700', 'bg-green-100', 'border-green-400', 'text-green-700', 'bg-yellow-100', 'border-yellow-400', 'text-yellow-700');
+            messageBox.className = 'message-box'; // Reset classes
             if (type === 'error') {
                 messageBox.classList.add('bg-red-100', 'border-red-400', 'text-red-700');
             } else if (type === 'success') {
                 messageBox.classList.add('bg-green-100', 'border-green-400', 'text-green-700');
-            } else { // Default for info messages
+            } else { // info
                 messageBox.classList.add('bg-yellow-100', 'border-yellow-400', 'text-yellow-700');
             }
             messageBox.classList.remove('hidden');
         }
 
-        // Add an entry to the game log
         function addLogEntry(msg, type = 'info') {
-            logEntryCounter++; // Increment counter
+            logEntryCounter++;
             const logEntry = document.createElement('p');
-            let formattedMsg = `${logEntryCounter}. ${msg}`; // Use sequential number
+            let formattedMsg = `${logEntryCounter}. ${msg}`;
 
-            // Highlight player names
             formattedMsg = formattedMsg.replace(/(プレイヤー\d+)/g, '<span class="log-player-name">$1</span>');
-            // Highlight numbers, being careful not to highlight the sequential log number itself
-            formattedMsg = formattedMsg.replace(/(\d+)/g, (match, p1, offset, string) => {
-                // Check if the number is at the beginning of the string (the logEntryCounter)
-                // This is a simple check, more robust regex might be needed for complex cases
-                if (offset === 0 || (offset === String(logEntryCounter).length + 2 && string.startsWith(`${logEntryCounter}. `))) {
-                    return match; // Don't highlight the log entry number
+            // Improved number highlighting to avoid highlighting numbers within HTML tags or player names already processed.
+            // This is a simplified approach; more robust parsing might be needed for complex messages.
+            formattedMsg = formattedMsg.replace(/(?<!<span class="log-player-name">プレイヤー)(\b\d+\b)(?!<\/span>)/g, (match, p1) => {
+                 // Avoid highlighting the entry counter itself if it's at the start of the message part
+                if (msg.startsWith(p1) && String(logEntryCounter) === p1 && formattedMsg.startsWith(`${logEntryCounter}. ${p1}`)) {
+                    return p1;
                 }
+                // Check if it's part of "プレイヤーX" which should already be handled
+                const playerMatchIndex = formattedMsg.indexOf(`<span class="log-player-name">プレイヤー${p1}</span>`);
+                if (playerMatchIndex !== -1 && formattedMsg.substring(playerMatchIndex, playerMatchIndex + `<span class="log-player-name">プレイヤー${p1}</span>`.length).includes(p1)) {
+                    return p1; 
+                }
+
                 return `<span class="log-number">${p1}</span>`;
             });
+             // Special card values highlighting
+            formattedMsg = formattedMsg.replace(/(×2|MAX→0|0\(夜\)|？|-10|-5)/g, '<span class="log-number">$1</span>');
 
 
-            logEntry.innerHTML = formattedMsg; // Use innerHTML to render spans
-            logEntry.classList.add('py-0.5', 'px-1', 'rounded-sm');
+            logEntry.innerHTML = formattedMsg;
+            // Removed py-0.5 etc. from here, using #logContent p styles
 
-            if (type === 'error') {
-                logEntry.classList.add('text-red-700', 'bg-red-50');
-            } else if (type === 'success') {
-                logEntry.classList.add('text-green-700', 'bg-green-50');
-            } else if (type === 'info') {
-                logEntry.classList.add('text-blue-700', 'bg-blue-50');
-            } else { // Default for general actions
-                logEntry.classList.add('text-gray-700');
+            if (type === 'error') logEntry.classList.add('text-red-700', 'bg-red-50');
+            else if (type === 'success') logEntry.classList.add('text-green-700', 'bg-green-50');
+            else if (type === 'info') logEntry.classList.add('text-blue-700', 'bg-blue-50');
+            else logEntry.classList.add('text-gray-700'); // Default action
+
+            logContentElement.appendChild(logEntry);
+            if (logScrollableContainer) {
+                logScrollableContainer.scrollTop = logScrollableContainer.scrollHeight;
             }
-            logContent.appendChild(logEntry);
-
-            // Keep only the last 5 log entries
-            const maxLogEntries = 5;
-            while (logContent.children.length > maxLogEntries) {
-                logContent.removeChild(logContent.children[0]);
-            }
-
-            logContent.scrollTop = logContent.scrollHeight; // Auto-scroll to bottom
         }
-
-
-        // Game Start
-        function startGame() {
-            logContent.innerHTML = ''; // Clear log on new game start
-            logEntryCounter = 0; // Reset log counter
-            dealtCards = []; // Reset dealt cards for a new game (all cards available again)
-            initializePlayers();
-            isGameStarted = true;
-            roundNumber = 0; // Reset round number for a new game
-            currentRoundNumberDisplay.textContent = roundNumber; // Update display
-            currentDealerIndex = -1; // Will be incremented to 0 in startRound
-            updateMessageBox('ゲーム開始！');
-            addLogEntry('新しいゲームが開始されました。', 'info');
-            // renderAvailableCards(); // Moved to be called when modal is shown
-            nextRoundBtn.classList.add('hidden'); // ゲーム開始時は非表示にする
-            setTimeout(startRound, 1500);
-        }
-
-        // Start New Round
-        function startRound() {
-            logContent.innerHTML = ''; // Clear log at the start of each round
-            logEntryCounter = 0; // Reset log counter for each round
-            roundNumber++;
-            currentRoundNumberDisplay.textContent = roundNumber; // Update display for new round
-            isRoundActive = true; // Set round as active
-            cardsInPlay = []; // Clear current round's cards for sum calculation
-            currentBid = { value: 0, bidderIndex: -1 };
-            bidInput.value = ''; // Clear bid input
-            bidInput.disabled = false;
-            raiseBidBtn.disabled = false;
-            coyoteBtn.disabled = false;
-            prevBidBtn.disabled = false; // Enable new buttons
-            nextBidBtn.disabled = false; // Enable new buttons
-            nextRoundBtn.classList.add('hidden'); // ラウンド開始時は非表示にする
-
-            // Determine next dealer (player who lost last round, or next in line)
-            const activePlayers = players.filter(p => !p.isEliminated);
-            currentDealerIndex = (currentDealerIndex + 1) % activePlayers.length;
-            let actualDealerIndex = players.indexOf(activePlayers[currentDealerIndex]); // Get original index
-
-            currentPlayerIndex = (actualDealerIndex + 1) % players.length;
-            while(players[currentPlayerIndex].isEliminated){
-                currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-            }
-
-            updateMessageBox(`${players[currentPlayerIndex].name} の番です。`);
-            addLogEntry(`ラウンド ${roundNumber} 開始！ディーラーは ${players[actualDealerIndex].name} です。`, 'info');
-
-            dealCards(); // This will update cardsInPlay and add to dealtCards
-            renderPlayers(); // Re-render players to apply card hiding logic
-            setTimeout(() => {
-                addLogEntry(`${players[currentPlayerIndex].name} の番です。`);
-                if (currentPlayerIndex !== 0) { // If AI turn
-                    setTimeout(aiTurn, 2000);
-                }
-            }, 1000);
-        }
-
-        // Deal Cards
-        function dealCards() {
-            // Create a temporary deck for this round's dealing, starting from the full initial deck
-            let cardsRemainingInDeck = [];
-            const tempDealtCounts = {}; // To track how many of each card are already dealt
-
-            // Populate tempDealtCounts from the global dealtCards array
-            dealtCards.forEach(card => {
-                tempDealtCounts[card] = (tempDealtCounts[card] || 0) + 1;
-            });
-
-            // Build cardsRemainingInDeck by iterating through initialCardDeck and removing dealt instances
-            initialCardDeck.forEach(card => {
-                if (tempDealtCounts[card] && tempDealtCounts[card] > 0) {
-                    tempDealtCounts[card]--; // "Consume" one dealt instance
-                } else {
-                    cardsRemainingInDeck.push(card); // This card instance is available
-                }
-            });
-
-            // Shuffle the remaining cards
-            for (let i = cardsRemainingInDeck.length - 1; i > 0; i--) {
+        
+        // --- Game Logic ---
+        function shuffleDeck(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [cardsRemainingInDeck[i], cardsRemainingInDeck[j]] = [cardsRemainingInDeck[j], cardsRemainingInDeck[i]];
+                [deck[i], deck[j]] = [deck[j], deck[i]];
             }
+        }
 
-            cardsInPlay = []; // Clear for new round's sum calculation
+        function dealCards() {
+            const activePlayers = players.filter(p => !p.isEliminated);
+            if (activePlayers.length === 0) return;
 
-            players.forEach(player => {
-                if (!player.isEliminated) {
-                    if (cardsRemainingInDeck.length > 0) {
-                        const dealtCard = cardsRemainingInDeck.pop();
-                        player.currentCard = dealtCard;
-                        cardsInPlay.push(dealtCard);
-                        dealtCards.push(dealtCard); // Add to the game-long dealt cards list
-                    } else {
-                        console.warn("Not enough cards left to deal to all active players in dealCards.");
-                        player.currentCard = null; // Assign null if no cards left
+            let availableDeck = [...initialCardDeck];
+            // Remove cards that are permanently out of the game (e.g. from eliminated players from previous rounds if rules dictated)
+            // For this version, we assume a fresh consideration of initialCardDeck minus what's visibly dealt this game.
+            
+            shuffleDeck(availableDeck);
+            
+            cardsInPlay = []; // Reset cards in play for sum calculation for the current round
+            dealtCards = []; // Reset dealt cards tracker for card composition for THIS round from player's perspective
+
+            activePlayers.forEach(player => {
+                if (availableDeck.length > 0) {
+                    player.currentCard = availableDeck.pop();
+                    cardsInPlay.push(player.currentCard); // Add to cards for sum calculation
+                    dealtCards.push(player.currentCard); // Add to dealt cards for card composition UI
+                } else {
+                    player.currentCard = null; // Should not happen with enough cards
+                    addLogEntry("エラー: デッキにカードがありません。", "error");
+                }
+            });
+        }
+
+
+        function calculateTotalSum() {
+            let sum = 0;
+            let hasMultiplier = false;
+            let hasMaxToZero = false;
+            let nightCardValue = 0; // Value revealed by '?' card if it becomes '0_夜'
+
+            const actualCardsInPlay = players.filter(p => !p.isEliminated).map(p => p.currentCard);
+
+            // First pass for '?' card resolution
+            const questionCardIndex = actualCardsInPlay.indexOf('？');
+            if (questionCardIndex !== -1) {
+                // Reveal one card from the *remaining* initial deck (not in actualCardsInPlay)
+                let tempDeck = [...initialCardDeck];
+                actualCardsInPlay.forEach(cardInHand => {
+                    const idx = tempDeck.indexOf(cardInHand);
+                    if (idx > -1) tempDeck.splice(idx, 1);
+                });
+                if (tempDeck.length > 0) {
+                    shuffleDeck(tempDeck);
+                    const revealedCardForQuestionMark = tempDeck[0];
+                    actualCardsInPlay[questionCardIndex] = revealedCardForQuestionMark; // Temporarily replace '?'
+                    addLogEntry(`「？」カードは「${formatCardDisplay(revealedCardForQuestionMark)}」になりました。`, "info");
+                    if (revealedCardForQuestionMark === '0_夜') {
+                        nightCardValue = 0; // '0_夜' itself doesn't change sum unless it's the only night card
                     }
                 } else {
-                    player.currentCard = null; // Eliminated players don't get a card
+                     actualCardsInPlay[questionCardIndex] = 0; // No cards left to reveal, '?' becomes 0
+                     addLogEntry("「？」カードは「0」になりました。(デッキ残なし)", "info");
                 }
-            });
-            addLogEntry('カードが配られました。');
-            // renderAvailableCards(); // This function is now called when the modal is shown
-        }
+            }
+            
+            // Check for MAX→0 card. If present, find the highest numerical card and change it to 0.
+            if (actualCardsInPlay.includes('MAX→0')) {
+                hasMaxToZero = true;
+                let maxValue = -Infinity;
+                let maxIndex = -1;
+                actualCardsInPlay.forEach((card, index) => {
+                    if (typeof card === 'number' && card > maxValue) {
+                        maxValue = card;
+                        maxIndex = index;
+                    }
+                });
+                if (maxIndex !== -1) {
+                    addLogEntry(`「MAX→0」の効果で、最も大きい数字のカード「${actualCardsInPlay[maxIndex]}」が「0」になりました。`, "info");
+                    actualCardsInPlay[maxIndex] = 0;
+                }
+            }
 
-        // Get total sum of cards
-        function getTotalSum() {
-            let sum = 0;
-            // This function currently only sums numeric cards.
-            // Special card effects (e.g., '×2', 'MAX→0', '0_夜', '？') are NOT implemented here.
-            // They will require additional logic to modify the sum based on their rules.
-            cardsInPlay.forEach(card => {
+            // Calculate sum from numerical cards
+            actualCardsInPlay.forEach(card => {
                 if (typeof card === 'number') {
                     sum += card;
-                } else {
-                    // Handle special cards for sum calculation if their effect is a direct number addition/subtraction
-                    // For '0_夜', it's still 0 for sum calculation for now.
-                    // For '×2', 'MAX→0', '？', their effects need to be applied to the *final* sum, not individual card values.
-                    // This is a placeholder for future logic.
-                    if (card === '0_夜') {
-                        sum += 0; // Treat '0_夜' as 0 for sum for now.
-                    }
+                } else if (card === '×2') {
+                    hasMultiplier = true;
+                } else if (card === '0_夜') {
+                    // If '0_夜' is present, all other '0' cards become negative.
+                    // This interaction needs to be handled carefully.
+                    // Let's assume '0_夜' makes other numeric 0s count as 0, but if it's the *only* night card, sum is 0.
+                    // The rule is "場のカードの合計値を0にする" if it's a "night" round.
+                    // For simplicity here: if '0_夜' is revealed, total sum becomes 0.
+                    nightCardValue = 0; // Placeholder, actual effect is total sum to 0
                 }
             });
+            
+            // If '0_夜' was in play (either dealt or revealed by '?')
+            if (actualCardsInPlay.some(c => c === '0_夜')) {
+                 addLogEntry("「0(夜)」カードの効果で、場の合計は0になりました。", "info");
+                 sum = 0; // Overrides all other calculations
+                 // Multiplier does not apply if sum is forced to 0 by night card
+                 return sum; 
+            }
+
+
+            if (hasMultiplier) {
+                addLogEntry("「×2」カードの効果で、合計が2倍になりました。", "info");
+                sum *= 2;
+            }
             return sum;
         }
 
-        // Handle Bid
-        function handleBid() {
-            const bidValue = parseInt(bidInput.value);
-            if (isNaN(bidValue) || bidValue <= currentBid.value) {
-                updateMessageBox(`無効な宣言です。${currentBid.value + 1} 以上の数字を入力してください。`, 'error');
-                addLogEntry(`無効な宣言: ${bidInput.value}。${currentBid.value + 1} 以上が必要です。`, 'error');
+        function startNewRound() {
+            roundNumber++;
+            currentRoundNumberDisplay.textContent = roundNumber;
+            isRoundActive = true;
+            currentBid = { value: 0, bidderIndex: -1 };
+            bidInput.value = '';
+            messageBox.classList.add('hidden');
+            nextRoundBtn.classList.add('hidden');
+
+            // Determine dealer and starting player
+            // For simplicity, dealer rotates, player after dealer starts.
+            // Ensure only active players are considered for dealing & playing.
+            const activePlayers = players.filter(p => !p.isEliminated);
+            if (activePlayers.length <= 1) {
+                endGame();
                 return;
             }
-            if (bidValue > 99) { // Arbitrary high limit
-                updateMessageBox('宣言が大きすぎます。もっと小さい数字にしてください。', 'error');
-                addLogEntry(`宣言が大きすぎます: ${bidValue}。`, 'error');
+            
+            currentDealerIndex = (currentDealerIndex + 1) % players.length;
+            while(players[currentDealerIndex].isEliminated) {
+                currentDealerIndex = (currentDealerIndex + 1) % players.length;
+            }
+
+            currentPlayerIndex = (currentDealerIndex + 1) % players.length;
+            while(players[currentPlayerIndex].isEliminated) {
+                currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            }
+
+            dealCards(); // Deals to active players
+            renderPlayers();
+            updateGameControls();
+            renderAvailableCards(); // Update card composition based on new deal (especially for player 0)
+
+            addLogEntry(`ラウンド ${roundNumber} 開始。ディーラー: ${players[currentDealerIndex].name}`, "info");
+            updateMessageBox(`${players[currentPlayerIndex].name}のターンです。宣言を入力してください。`, 'info');
+            
+            if (currentPlayerIndex !== 0) { // If AI's turn
+                setTimeout(aiAction, 1500);
+            }
+        }
+
+        function handleRaiseBid() {
+            const bidValue = parseInt(bidInput.value, 10);
+            if (isNaN(bidValue)) {
+                updateMessageBox("有効な数字を入力してください。", "error");
+                return;
+            }
+            if (bidValue <= currentBid.value && currentBid.bidderIndex !== -1) {
+                updateMessageBox(`現在の宣言 ${currentBid.value} より大きい値を入力してください。`, "error");
                 return;
             }
 
             currentBid = { value: bidValue, bidderIndex: currentPlayerIndex };
-            updateMessageBox(`${players[currentPlayerIndex].name} が ${bidValue} と宣言しました。`);
-            addLogEntry(`${players[currentPlayerIndex].name} が ${bidValue} と宣言しました。`);
-
+            addLogEntry(`${players[currentPlayerIndex].name} が ${bidValue} を宣言しました。`);
+            
             moveToNextPlayer();
-            renderPlayers();
-
-            if (currentPlayerIndex !== 0) { // If AI turn
-                setTimeout(aiTurn, 2000);
-            } else {
-                updateMessageBox(`${players[currentPlayerIndex].name} の番です。`);
-                addLogEntry(`${players[currentPlayerIndex].name} の番です。`);
-            }
         }
 
-        // Handle Coyote (Challenge)
         function handleCoyote() {
-            if (currentBid.value === 0) {
-                updateMessageBox('まだ宣言がありません。', 'error');
-                addLogEntry('コヨーテ宣言: まだ宣言がありません。', 'error');
+            if (currentBid.bidderIndex === -1) {
+                updateMessageBox("まだ誰も宣言していません。「コヨーテ」は宣言後に行ってください。", "error");
                 return;
             }
+            isRoundActive = false; // Round ends for card reveal
+            addLogEntry(`${players[currentPlayerIndex].name} が「コヨーテ！」と宣言しました。`);
+            
+            // Reveal all cards
+            renderPlayers(); // Re-render to show all cards
 
-            isRoundActive = false; // Set round as inactive immediately
-            bidInput.disabled = true;
-            raiseBidBtn.disabled = true;
-            coyoteBtn.disabled = true;
-            prevBidBtn.disabled = true; // Disable new buttons
-            nextBidBtn.disabled = true; // Disable new buttons
+            const totalSum = calculateTotalSum();
+            addLogEntry(`実際のカードの合計は ${totalSum} でした。`);
 
-            updateMessageBox(`${players[currentPlayerIndex].name} がコヨーテ！と宣言しました！`, 'info');
-            addLogEntry(`${players[currentPlayerIndex].name} がコヨーテ！と宣言しました！`, 'info');
+            const lastBidder = players[currentBid.bidderIndex];
+            const challenger = players[currentPlayerIndex];
 
-            setTimeout(() => {
-                const actualSum = getTotalSum(); // This sum does not yet account for special card effects
-                updateMessageBox(`実際の合計は ${actualSum} です。`);
-                addLogEntry(`全てのカードが公開されました。合計は ${actualSum} です。`, 'info');
-
-                let loserPlayer = null;
-                let winnerPlayer = null;
-
-                if (actualSum < currentBid.value) {
-                    // Bidder loses
-                    loserPlayer = players[currentBid.bidderIndex];
-                    winnerPlayer = players[currentPlayerIndex]; // Challenger wins
-                    updateMessageBox(`${loserPlayer.name} は宣言 (${currentBid.value}) を達成できませんでした！`, 'error');
-                    addLogEntry(`${loserPlayer.name} は宣言 (${currentBid.value}) を達成できませんでした。`, 'error');
-                } else {
-                    // Challenger loses
-                    loserPlayer = players[currentPlayerIndex];
-                    winnerPlayer = players[currentBid.bidderIndex]; // Bidder wins
-                    updateMessageBox(`${winnerPlayer.name} の宣言 (${currentBid.value}) が正しかったです！`, 'success');
-                    addLogEntry(`${winnerPlayer.name} の宣言 (${currentBid.value}) が正しかったです。`, 'success');
-                }
-
-                if (loserPlayer) {
-                    loserPlayer.lives--;
-                    addLogEntry(`${loserPlayer.name} はライフを1失いました。残りライフ: ${loserPlayer.lives}`, 'error');
-                    if (loserPlayer.lives <= 0) {
-                        loserPlayer.isEliminated = true;
-                        addLogEntry(`${loserPlayer.name} は脱落しました！`, 'error');
-                    }
-                }
-                renderPlayers(); // Re-render players to show updated lives and revealed cards
-
-                setTimeout(() => {
-                    checkGameOver();
-                    // ゲームオーバーでなければ次のラウンドボタンを表示
-                    if (players.filter(p => !p.isEliminated).length > 1) { // プレイヤーが2人以上残っている場合
-                        nextRoundBtn.classList.remove('hidden');
-                        updateMessageBox('次のラウンドに進むか、新しいゲームを開始してください。');
-                    }
-                }, 2000);
-            }, 1500);
-        }
-
-        // Reveal all cards (This function is now redundant for its original purpose, but kept for clarity if needed elsewhere)
-        function revealCards() {
-            // The card revelation is now primarily handled by renderPlayers when isRoundActive is false
-            // This function can be removed or repurposed if its direct DOM manipulation is no longer needed.
-            // For now, it's not strictly necessary as renderPlayers will do the job.
-        }
-
-        // Move to the next active player
-        function moveToNextPlayer() {
-            let nextPlayer = currentPlayerIndex;
-            let foundNext = false;
-            for (let i = 0; i < players.length; i++) {
-                nextPlayer = (nextPlayer + 1) % players.length;
-                if (!players[nextPlayer].isEliminated) {
-                    currentPlayerIndex = nextPlayer;
-                    foundNext = true;
-                    break;
-                }
+            if (totalSum === currentBid.value) { // Bid was exact
+                addLogEntry(`宣言 ${currentBid.value} は合計と一致！ ${challenger.name} がライフを失います。`, "success");
+                challenger.lives--;
+                updateMessageBox(`${challenger.name}の負け！合計は${totalSum}でした。`, "error");
+            } else if (totalSum > currentBid.value) { // Bid was too low (Coyote challenge fails)
+                addLogEntry(`宣言 ${currentBid.value} は合計 ${totalSum} より小さい。 ${challenger.name} がライフを失います。`, "error");
+                challenger.lives--;
+                updateMessageBox(`${challenger.name}の負け！合計は${totalSum}でした。`, "error");
+            } else { // Bid was too high (Coyote challenge succeeds)
+                addLogEntry(`宣言 ${currentBid.value} は合計 ${totalSum} より大きい。 ${lastBidder.name} がライフを失います。`, "success");
+                lastBidder.lives--;
+                updateMessageBox(`${lastBidder.name}の負け！合計は${totalSum}でした。`, "success");
             }
-            if (!foundNext) {
-                // This case should ideally not happen if checkGameOver is working
-                console.error("No next active player found. Game should be over.");
-            }
-        }
 
-        // Check if game is over
-        function checkGameOver() {
+            checkPlayerElimination();
+            renderPlayers(); // Update lives display
+            updateGameControls(); // Disable bid buttons
+
             const activePlayers = players.filter(p => !p.isEliminated);
             if (activePlayers.length <= 1) {
-                isGameStarted = false;
-                isRoundActive = false;
-                updateMessageBox(`${activePlayers[0].name} の勝利です！ゲーム終了！`, 'success');
-                addLogEntry(`${activePlayers[0].name} の勝利です！ゲーム終了！`, 'success');
-                // ゲームオーバーの場合は「次のラウンドに進む」ボタンを表示しない
-                nextRoundBtn.classList.add('hidden');
-                // 新しいゲームを開始するボタンなどを表示するロジックをここに追加
-                // 例: リセットボタンの表示
-                setTimeout(() => {
-                    // ここで新しいゲームを開始するボタンなどを表示する
-                    // 例えば、startGame() を呼び出すためのボタンを表示するなど
-                    updateMessageBox('新しいゲームを開始するにはページをリロードしてください。'); // 仮のメッセージ
-                }, 2000);
+                endGame();
+            } else {
+                nextRoundBtn.classList.remove('hidden');
             }
         }
+        
+        function checkPlayerElimination() {
+            players.forEach(player => {
+                if (player.lives <= 0 && !player.isEliminated) {
+                    player.isEliminated = true;
+                    addLogEntry(`${player.name} は脱落しました。`, "error");
+                    // Remove their card from future sum calculations if it was part of cardsInPlay
+                    const cardIndex = cardsInPlay.indexOf(player.currentCard);
+                    if (cardIndex > -1) cardsInPlay.splice(cardIndex,1);
+                }
+            });
+        }
 
-        // AI Logic
-        function aiTurn() {
-            if (!isRoundActive) return;
+        function moveToNextPlayer() {
+            do {
+                currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            } while (players[currentPlayerIndex].isEliminated);
+            
+            renderPlayers(); // Highlight next player
+            updateGameControls();
+            bidInput.value = ''; // Clear input for next player
+            updateMessageBox(`${players[currentPlayerIndex].name}のターンです。`, 'info');
+
+            if (currentPlayerIndex !== 0 && isRoundActive) { // AI's turn
+                 setTimeout(aiAction, 1500); // AI takes action after a delay
+            }
+        }
+        
+        function aiAction() {
+            if (!isRoundActive || players[currentPlayerIndex].isEliminated) return;
 
             const aiPlayer = players[currentPlayerIndex];
-            // AIのカードも考慮して合計値を計算（特殊カードは数値として扱われるか、無視される）
-            // AIの意思決定ロジックは、特殊カードの効果を考慮するように拡張する必要があります。
-            const visibleCardsSum = cardsInPlay.filter((_, index) => index !== currentPlayerIndex).reduce((sum, card) => {
-                if (typeof card === 'number') {
-                    return sum + card;
-                }
-                // 特殊カードはAIの計算では0として扱う（暫定）
-                return sum;
-            }, 0);
+            // Simple AI: 50% chance to Coyote if a bid exists, otherwise bid currentBid + random(1-5)
+            const canCoyote = currentBid.bidderIndex !== -1;
             
-            let aiCardValue = 0;
-            if (typeof aiPlayer.currentCard === 'number') {
-                aiCardValue = aiPlayer.currentCard;
-            } else {
-                // AIにとっての特殊カードの価値をどう評価するか、ロジックを追加する必要があります。
-                // 現時点では、特殊カードはAIの合計値計算では0として扱われます。
-                if (aiPlayer.currentCard === '0_夜') {
-                    aiCardValue = 0;
-                }
-                // '×2', 'MAX→0', '？' はAIの合計値計算には直接影響しないため、0として扱う
-            }
-
-            let potentialSum = visibleCardsSum + aiCardValue;
-
-            // Simple AI:
-            // 1. If current bid is 0, make a conservative bid (e.g., sum of visible cards + a small random number)
-            // 2. If current bid is higher than what AI thinks is possible, challenge (coyote)
-            // 3. Otherwise, raise the bid slightly
-            if (currentBid.value === 0) {
-                // First bid, be conservative but not too low
-                const bid = Math.max(1, Math.floor(potentialSum * 0.7) + Math.floor(Math.random() * 3));
-                bidInput.value = bid;
-                handleBid();
-            } else if (currentBid.value >= potentialSum) {
-                // If current bid is too high, challenge
+            if (canCoyote && Math.random() < 0.3) { // 30% chance to Coyote
                 handleCoyote();
             } else {
-                // Otherwise, raise the bid
-                const minBid = currentBid.value + 1;
-                const maxBid = potentialSum + Math.floor(Math.random() * 5); // Allow some bluffing
-                const bid = Math.min(Math.max(minBid, Math.floor(Math.random() * (maxBid - minBid + 1)) + minBid), 99); // Ensure bid is within reasonable range and not too high
-                bidInput.value = bid;
-                handleBid();
+                let aiBidValue = (currentBid.value === 0 && currentBid.bidderIndex === -1) ? 
+                                 Math.floor(Math.random() * 5) + 1 : // First bid, random 1-5
+                                 currentBid.value + Math.floor(Math.random() * 3) + 1; // Subsequent bids
+                
+                // Ensure AI bid is somewhat reasonable (e.g., not excessively high)
+                // This is a very basic check. A smarter AI would estimate the sum.
+                const maxPossibleSumRoughly = players.filter(p=>!p.isEliminated).length * 10; // Very rough upper bound
+                if (aiBidValue > maxPossibleSumRoughly) {
+                    aiBidValue = Math.max(currentBid.value + 1, Math.floor(maxPossibleSumRoughly * 0.75));
+                }
+                if (aiBidValue <= currentBid.value && currentBid.bidderIndex !== -1) {
+                    aiBidValue = currentBid.value + 1; // Must be higher
+                }
+
+
+                currentBid = { value: aiBidValue, bidderIndex: currentPlayerIndex };
+                bidInput.value = aiBidValue; // Show AI's bid in input temporarily for player
+                addLogEntry(`${aiPlayer.name} が ${aiBidValue} を宣言しました。`);
+                moveToNextPlayer();
             }
         }
 
-        // Bid Input Navigation (Prev/Next buttons)
-        function navigateBid(direction) {
-            let currentVal = parseInt(bidInput.value);
-            if (isNaN(currentVal)) {
-                currentVal = currentBid.value; // Start from current bid if input is empty
+
+        function updateGameControls() {
+            const canBid = isRoundActive && currentPlayerIndex === 0; // Only player 0 can bid via UI
+            bidInput.disabled = !canBid;
+            raiseBidBtn.disabled = !canBid;
+            prevBidBtn.disabled = !canBid;
+            nextBidBtn.disabled = !canBid;
+            coyoteBtn.disabled = !isRoundActive || currentPlayerIndex !== 0 || currentBid.bidderIndex === -1;
+
+            if (!isRoundActive) { // Round ended, disable all
+                bidInput.disabled = true;
+                raiseBidBtn.disabled = true;
+                coyoteBtn.disabled = true;
+                prevBidBtn.disabled = true;
+                nextBidBtn.disabled = true;
             }
-
-            if (direction === 'prev') {
-                bidInput.value = Math.max(currentBid.value + 1, currentVal - 1);
-            } else if (direction === 'next') {
-                bidInput.value = currentVal + 1;
+        }
+        
+        function endGame() {
+            isGameStarted = false;
+            isRoundActive = false;
+            const winner = players.find(p => !p.isEliminated);
+            if (winner) {
+                updateMessageBox(`ゲーム終了！勝者は ${winner.name} です！`, "success");
+                addLogEntry(`ゲーム終了！勝者は ${winner.name} です！`, "success");
+            } else {
+                updateMessageBox("ゲーム終了！引き分けです。", "info");
+                addLogEntry("ゲーム終了！引き分けです。", "info");
             }
+            nextRoundBtn.classList.add('hidden');
+            updateGameControls(); // Disable all controls
         }
 
-        // Modal functions
-        function showCardCompositionModal() {
-            cardCompositionModal.classList.remove('hidden');
-            renderAvailableCards(); // Render cards when modal is shown
-        }
-
-        function hideCardCompositionModal() {
-            cardCompositionModal.classList.add('hidden');
-        }
-
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            raiseBidBtn.addEventListener('click', handleBid);
-            coyoteBtn.addEventListener('click', handleCoyote);
-            prevBidBtn.addEventListener('click', () => navigateBid('prev')); // Event for prev button
-            nextBidBtn.addEventListener('click', () => navigateBid('next')); // Event for next button
-            bidInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    handleBid();
-                }
-            });
-
-            // Next Round button event listener
-            nextRoundBtn.addEventListener('click', () => {
-                if (players.filter(p => !p.isEliminated).length > 1) {
-                    startRound();
-                } else {
-                    // ゲームオーバーの場合は新しいゲームを促す
-                    updateMessageBox('ゲームは終了しました。新しいゲームを開始してください。', 'info');
-                }
-            });
-
-            // Card Composition button event listener
-            showCardCompositionBtn.addEventListener('click', showCardCompositionModal);
-
-            // Close modal button and overlay click listener
-            closeModalBtn.addEventListener('click', hideCardCompositionModal);
-            cardCompositionModal.addEventListener('click', (e) => {
-                if (e.target === cardCompositionModal) { // Only close if clicking the overlay, not the content
-                    hideCardCompositionModal();
-                }
-            });
-
-            // 最初にゲームを開始
-            startGame();
+        // --- Event Listeners ---
+        raiseBidBtn.addEventListener('click', handleRaiseBid);
+        coyoteBtn.addEventListener('click', handleCoyote);
+        nextRoundBtn.addEventListener('click', () => {
+            if (players.filter(p => !p.isEliminated).length > 1) {
+                startNewRound();
+            } else {
+                endGame();
+            }
         });
+
+        prevBidBtn.addEventListener('click', () => {
+            let currentValue = parseInt(bidInput.value) || (currentBid.value > 0 ? currentBid.value +1 : 1) ;
+            if (currentValue > (currentBid.value > 0 ? currentBid.value + 1 : 1) ) {
+                 bidInput.value = currentValue - 1;
+            } else {
+                bidInput.value = (currentBid.value > 0 ? currentBid.value +1 : 1); // Minimum possible bid
+            }
+        });
+
+        nextBidBtn.addEventListener('click', () => {
+            let currentValue = parseInt(bidInput.value) || (currentBid.value > 0 ? currentBid.value : 0);
+            bidInput.value = currentValue + 1;
+        });
+
+        showCardCompositionBtn.addEventListener('click', () => {
+            renderAvailableCards(); // Re-render cards based on current game state
+            cardCompositionModal.classList.remove('hidden');
+        });
+        closeModalBtn.addEventListener('click', () => {
+            cardCompositionModal.classList.add('hidden');
+        });
+        // Close modal if overlay is clicked
+        cardCompositionModal.addEventListener('click', (event) => {
+            if (event.target === cardCompositionModal) {
+                cardCompositionModal.classList.add('hidden');
+            }
+        });
+
+
+        // --- Game Setup on Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setDynamicHeight(); // Set initial height
+
+            const numPlayersStr = prompt("プレイヤーの人数を入力してください (3-6):", "3");
+            let numPlayers = parseInt(numPlayersStr, 10);
+
+            if (isNaN(numPlayers) || numPlayers < 3 || numPlayers > 6) {
+                updateMessageBox("無効な人数です。3から6の値を入力してください。デフォルトの3人で開始します。", "error");
+                numPlayers = 3;
+            }
+
+            initializePlayers(numPlayers);
+            
+            currentDealerIndex = players.length -1; // So first dealer is player 0 after increment
+            currentPlayerIndex = 0; // Will be set correctly in startNewRound
+
+            isGameStarted = true;
+            roundNumber = 0; // startNewRound will increment this to 1
+            startNewRound(); 
+
+            updateGameControls();
+            // renderAvailableCards(); // Initial render for modal content (done in startNewRound now)
+            addLogEntry("ゲームが開始されました。", "success");
+        });
+
+        window.addEventListener('resize', setDynamicHeight);
+        window.addEventListener('orientationchange', setDynamicHeight);
+
     </script>
 </body>
 </html>
